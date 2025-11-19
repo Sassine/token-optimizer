@@ -152,3 +152,11 @@ toon-server.log
 # Temporary test files
 test-output/
 test-results/
+
+# ============================================
+# Git Setup Files (local only)
+# ============================================
+setup-github.sh
+setup-github.bat
+GITHUB_SETUP.md
+.gitattributes
