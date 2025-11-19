@@ -1,0 +1,23 @@
+# Auto detect text files and perform LF normalization
+* text=auto
+
+# Force LF line endings for shell scripts
+*.sh text eol=lf
+*.bat text eol=crlf
+
+# Force LF for Java source files
+*.java text eol=lf
+
+# Force LF for configuration files
+*.xml text eol=lf
+*.json text eol=lf
+*.md text eol=lf
+*.properties text eol=lf
+
+# Binary files
+*.jar binary
+*.class binary
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
