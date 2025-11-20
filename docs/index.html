@@ -1,0 +1,556 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Token Optimizer - Optimize Payload Format for LLMs</title>
+    <meta name="description" content="Java library to optimize payload format by comparing JSON vs TOON and automatically returning the format that consumes fewer tokens.">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #2563eb;
+            --primary-dark: #1e40af;
+            --secondary: #10b981;
+            --text: #1f2937;
+            --text-light: #6b7280;
+            --bg: #ffffff;
+            --bg-light: #f9fafb;
+            --border: #e5e7eb;
+            --code-bg: #f3f4f6;
+            --shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
+            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            line-height: 1.6;
+            color: var(--text);
+            background: var(--bg);
+        }
+
+        /* Header */
+        header {
+            background: var(--bg);
+            border-bottom: 1px solid var(--border);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            backdrop-filter: blur(10px);
+            background: rgba(255, 255, 255, 0.9);
+        }
+
+        nav {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--primary);
+            text-decoration: none;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+            list-style: none;
+        }
+
+        .nav-links a {
+            color: var(--text);
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.2s;
+        }
+
+        .nav-links a:hover {
+            color: var(--primary);
+        }
+
+        /* Hero Section */
+        .hero {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 4rem 2rem;
+            text-align: center;
+        }
+
+        .hero h1 {
+            font-size: 3.5rem;
+            font-weight: 800;
+            margin-bottom: 1rem;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .hero .subtitle {
+            font-size: 1.5rem;
+            color: var(--text-light);
+            margin-bottom: 2rem;
+            max-width: 700px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .cta-buttons {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 0.75rem 2rem;
+            border-radius: 0.5rem;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.2s;
+            display: inline-block;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-dark);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .btn-secondary {
+            background: var(--bg-light);
+            color: var(--text);
+            border: 1px solid var(--border);
+        }
+
+        .btn-secondary:hover {
+            background: var(--border);
+        }
+
+        /* Features Grid */
+        .features {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 4rem 2rem;
+        }
+
+        .section-title {
+            font-size: 2.5rem;
+            font-weight: 700;
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+        }
+
+        .feature-card {
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: 0.75rem;
+            padding: 2rem;
+            transition: all 0.3s;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-lg);
+            border-color: var(--primary);
+        }
+
+        .feature-icon {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .feature-card h3 {
+            font-size: 1.25rem;
+            margin-bottom: 0.5rem;
+            color: var(--primary);
+        }
+
+        .feature-card p {
+            color: var(--text-light);
+        }
+
+        /* Stats Section */
+        .stats {
+            background: var(--bg-light);
+            padding: 4rem 2rem;
+        }
+
+        .stats-container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+
+        .stat-card {
+            text-align: center;
+            padding: 2rem;
+            background: var(--bg);
+            border-radius: 0.75rem;
+            border: 1px solid var(--border);
+        }
+
+        .stat-number {
+            font-size: 3rem;
+            font-weight: 800;
+            color: var(--primary);
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-label {
+            color: var(--text-light);
+            font-size: 1.1rem;
+        }
+
+        /* Code Examples */
+        .examples {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 4rem 2rem;
+        }
+
+        .code-block {
+            background: var(--code-bg);
+            border: 1px solid var(--border);
+            border-radius: 0.5rem;
+            padding: 1.5rem;
+            overflow-x: auto;
+            margin: 1rem 0;
+        }
+
+        .code-block pre {
+            margin: 0;
+            font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+            font-size: 0.9rem;
+            line-height: 1.5;
+        }
+
+        .code-block code {
+            color: var(--text);
+        }
+
+        /* Comparison Section */
+        .comparison {
+            background: var(--bg-light);
+            padding: 4rem 2rem;
+        }
+
+        .comparison-container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .comparison-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+
+        .format-card {
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: 0.75rem;
+            padding: 2rem;
+        }
+
+        .format-card h3 {
+            margin-bottom: 1rem;
+            color: var(--primary);
+        }
+
+        .format-card.winner {
+            border-color: var(--secondary);
+            border-width: 2px;
+        }
+
+        .format-card.winner::before {
+            content: "🏆 Winner";
+            display: block;
+            background: var(--secondary);
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 0.5rem;
+            margin-bottom: 1rem;
+            font-size: 0.875rem;
+            font-weight: 600;
+        }
+
+        /* Footer */
+        footer {
+            background: var(--text);
+            color: white;
+            padding: 3rem 2rem;
+            text-align: center;
+        }
+
+        .footer-links {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+        }
+
+        .footer-links a {
+            color: white;
+            text-decoration: none;
+            opacity: 0.8;
+            transition: opacity 0.2s;
+        }
+
+        .footer-links a:hover {
+            opacity: 1;
+        }
+
+        /* Badges */
+        .badges {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            margin: 2rem 0;
+            flex-wrap: wrap;
+        }
+
+        .badge {
+            padding: 0.5rem 1rem;
+            background: var(--bg-light);
+            border: 1px solid var(--border);
+            border-radius: 0.5rem;
+            font-size: 0.875rem;
+            color: var(--text);
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .hero h1 {
+                font-size: 2.5rem;
+            }
+
+            .hero .subtitle {
+                font-size: 1.25rem;
+            }
+
+            .nav-links {
+                display: none;
+            }
+
+            .comparison-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <nav>
+            <a href="#" class="logo">Token Optimizer</a>
+            <ul class="nav-links">
+                <li><a href="#features">Features</a></li>
+                <li><a href="#examples">Examples</a></li>
+                <li><a href="#benchmarks">Benchmarks</a></li>
+                <li><a href="https://github.com/Sassine/token-optimizer" target="_blank">GitHub</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <main>
+        <section class="hero">
+            <h1>Token Optimizer</h1>
+            <p class="subtitle">
+                Java library to optimize payload format by comparing JSON vs TOON and automatically returning the format that consumes fewer tokens.
+            </p>
+            <div class="badges">
+                <span class="badge">Java 24</span>
+                <span class="badge">TOON Spec v2.0</span>
+                <span class="badge">Tiktoken Support</span>
+                <span class="badge">MIT License</span>
+            </div>
+            <div class="cta-buttons">
+                <a href="https://github.com/Sassine/token-optimizer" class="btn btn-primary" target="_blank">Get Started</a>
+                <a href="#examples" class="btn btn-secondary">View Examples</a>
+            </div>
+        </section>
+
+        <section class="stats">
+            <div class="stats-container">
+                <h2 class="section-title">Why Token Optimizer?</h2>
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-number">~40%</div>
+                        <div class="stat-label">Token Reduction</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number">100%</div>
+                        <div class="stat-label">TOON Spec Compliant</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number">2</div>
+                        <div class="stat-label">Counting Methods</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number">17+</div>
+                        <div class="stat-label">Java Compatible</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="features" class="features">
+            <h2 class="section-title">Key Features</h2>
+            <div class="features-grid">
+                <div class="feature-card">
+                    <div class="feature-icon">📊</div>
+                    <h3>Token-Efficient & Accurate</h3>
+                    <p>Automatically selects the format (JSON or TOON) that uses fewer tokens, reducing LLM API costs while maintaining accuracy.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">🔁</div>
+                    <h3>JSON Data Model</h3>
+                    <p>Encodes the same objects, arrays, and primitives as JSON with deterministic, lossless round-trips. No data loss.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">🎯</div>
+                    <h3>Dual Token Counting</h3>
+                    <p>Generic estimation for any model, or precise tiktoken integration for GPT-4, GPT-3.5, Claude, and more.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">🛤️</div>
+                    <h3>LLM-Friendly Format</h3>
+                    <p>TOON format provides explicit [N] lengths and {fields} headers, giving models a clear schema to follow.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">📐</div>
+                    <h3>Minimal Syntax</h3>
+                    <p>Uses indentation instead of braces and minimizes quoting, giving YAML-like readability with CSV-style compactness.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">🧺</div>
+                    <h3>Tabular Arrays</h3>
+                    <p>Uniform arrays of objects collapse into tables that declare fields once and stream row values line by line.</p>
+                </div>
+            </div>
+        </section>
+
+        <section id="examples" class="examples">
+            <h2 class="section-title">Quick Start</h2>
+            
+            <h3 style="margin-top: 2rem; margin-bottom: 1rem;">Installation</h3>
+            <div class="code-block">
+                <pre><code>&lt;dependency&gt;
+    &lt;groupId&gt;dev.sassine&lt;/groupId&gt;
+    &lt;artifactId&gt;token-optimizer&lt;/artifactId&gt;
+    &lt;version&gt;0.0.1-SNAPSHOT&lt;/version&gt;
+&lt;/dependency&gt;</code></pre>
+            </div>
+
+            <h3 style="margin-top: 2rem; margin-bottom: 1rem;">Basic Usage (Generic Estimation)</h3>
+            <div class="code-block">
+                <pre><code>import dev.sassine.tokenoptimizer.TokenOptimizer;
+import dev.sassine.tokenoptimizer.OptimizationResult;
+import java.util.HashMap;
+import java.util.Map;
+
+Map&lt;String, Object&gt; person = new HashMap&lt;&gt;();
+person.put("name", "John");
+person.put("age", 30);
+person.put("city", "New York");
+
+OptimizationResult result = TokenOptimizer.optimize(person);
+
+System.out.println("Optimal format: " + result.getOptimalFormat());
+System.out.println("Token savings: " + result.getTokenSavings() + " tokens");</code></pre>
+            </div>
+
+            <h3 style="margin-top: 2rem; margin-bottom: 1rem;">Model-Specific Counting (Tiktoken)</h3>
+            <div class="code-block">
+                <pre><code>import com.knuddels.jtokkit.api.ModelType;
+
+// Use GPT-4 tokenizer for accurate counting
+OptimizationResult result = TokenOptimizer.optimize(person, ModelType.GPT_4);
+
+// Or GPT-3.5 Turbo
+OptimizationResult result2 = TokenOptimizer.optimize(person, ModelType.GPT_3_5_TURBO);</code></pre>
+            </div>
+        </section>
+
+        <section id="benchmarks" class="comparison">
+            <div class="comparison-container">
+                <h2 class="section-title">Real-World Benchmarks</h2>
+                <p style="text-align: center; color: var(--text-light); margin-bottom: 2rem;">
+                    Based on actual test results from the library examples
+                </p>
+                
+                <div class="comparison-grid">
+                    <div class="format-card">
+                        <h3>Example 1: Simple Object</h3>
+                        <p><strong>JSON:</strong> 15 tokens</p>
+                        <p><strong>TOON:</strong> 12 tokens</p>
+                        <p style="color: var(--secondary); font-weight: 600; margin-top: 1rem;">
+                            ✅ TOON saves 3 tokens (20%)
+                        </p>
+                    </div>
+                    
+                    <div class="format-card winner">
+                        <h3>Example 2: Blog with Posts</h3>
+                        <p><strong>JSON:</strong> 195 tokens</p>
+                        <p><strong>TOON:</strong> 145 tokens</p>
+                        <p style="color: var(--secondary); font-weight: 600; margin-top: 1rem;">
+                            ✅ TOON saves 50 tokens (25.64%)
+                        </p>
+                    </div>
+                    
+                    <div class="format-card winner">
+                        <h3>Example 3: E-commerce Orders</h3>
+                        <p><strong>JSON:</strong> 977 tokens</p>
+                        <p><strong>TOON:</strong> 110 tokens</p>
+                        <p style="color: var(--secondary); font-weight: 600; margin-top: 1rem;">
+                            ✅ TOON saves 867 tokens (88.74%)
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <div class="footer-links">
+            <a href="https://github.com/Sassine/token-optimizer" target="_blank">GitHub</a>
+            <a href="https://github.com/Sassine/token-optimizer/blob/main/README.md" target="_blank">Documentation</a>
+            <a href="https://github.com/toon-format/spec" target="_blank">TOON Specification</a>
+            <a href="https://github.com/Sassine/token-optimizer/blob/main/LICENSE" target="_blank">License</a>
+        </div>
+        <p style="opacity: 0.7; margin-top: 1rem;">
+            Released under the MIT License.<br>
+            Copyright © 2025-PRESENT Sassine El-Asmar
+        </p>
+    </footer>
+</body>
+</html>
+
