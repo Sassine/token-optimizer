@@ -75,9 +75,6 @@
 					<source>24</source>
 					<target>17</target>
 					<release>17</release>
-					<compilerArgs>
-						<arg>--enable-preview</arg>
-					</compilerArgs>
 				</configuration>
 			</plugin>
 			<plugin>
