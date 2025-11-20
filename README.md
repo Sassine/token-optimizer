@@ -12,7 +12,7 @@ Java library to optimize payload format by comparing JSON vs TOON and automatica
 
 **Current Version:** `1.0.0`  
 **Status:** ✅ Published to [Maven Central](https://central.sonatype.com/artifact/dev.sassine/token-optimizer)  
-**Release Date:** January 2025
+**Release Date:** November 2025
 
 [View on Maven Central](https://central.sonatype.com/artifact/dev.sassine/token-optimizer) | [View Releases](https://github.com/Sassine/token-optimizer/releases)
 
