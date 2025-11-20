@@ -34,7 +34,7 @@ jobs:
       
       - name: Publish to GitHub Packages
         working-directory: ./lib-java
-        run: mvn deploy -DskipTests
+        run: mvn deploy -DskipTests -s settings.xml
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
