@@ -157,11 +157,12 @@ public final class ToonConverter {
     private static void appendValueToToon(final StringBuilder toon, final Object value, final String indent) {
         if (value == null) {
             toon.append(" ").append(TOON_NULL);
-        } else if (value instanceof Map<?, ?> map) {
+        } else if (value instanceof Map) {
             // Nested object - add newline and indent
             toon.append(NEWLINE);
-            toon.append(convertMapToToon((Map<String, Object>) map, indent + INDENT));
-        } else if (value instanceof Iterable<?> iterable) {
+            toon.append(convertMapToToon((Map<String, Object>) value, indent + INDENT));
+        } else if (value instanceof Iterable) {
+            final Iterable<?> iterable = (Iterable<?>) value;
             // Array - check if it's an array of objects
             final List<?> list = iterableToList(iterable);
             if (isArrayOfObjects(list)) {
@@ -349,7 +350,7 @@ public final class ToonConverter {
             final List<?> list = iterableToList(iterable);
             // Arrays inside array values are always treated as simple arrays
             convertSimpleArrayToToon(toon, list);
-        } else if (value instanceof Map<?, ?> map) {
+        } else if (value instanceof Map) {
             // Nested object - this shouldn't happen in array values according to TOON spec
             // But handle it gracefully by converting to compact representation
             toon.append(TOON_OBJECT_START);
@@ -424,11 +425,12 @@ public final class ToonConverter {
     private static void appendPropertyValueToToon(final StringBuilder toon, final Object value, final String indent) {
         if (value == null) {
             toon.append(" ").append(TOON_NULL);
-        } else if (value instanceof Map<?, ?> map) {
+        } else if (value instanceof Map) {
             // Nested object - add newline and indent
             toon.append(NEWLINE);
-            toon.append(convertMapToToon((Map<String, Object>) map, indent + INDENT));
-        } else if (value instanceof Iterable<?> iterable) {
+            toon.append(convertMapToToon((Map<String, Object>) value, indent + INDENT));
+        } else if (value instanceof Iterable) {
+            final Iterable<?> iterable = (Iterable<?>) value;
             // Array - check if it's an array of objects
             final List<?> list = iterableToList(iterable);
             if (isArrayOfObjects(list)) {
