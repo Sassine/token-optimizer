@@ -22,12 +22,6 @@ jobs:
           java-version: '24'
           distribution: 'temurin'
       
-      - name: Configure Maven
-        uses: actions/setup-java@v4
-        with:
-          java-version: '24'
-          distribution: 'temurin'
-      
       - name: Build with Maven
         working-directory: ./lib-java
         run: mvn clean package -DskipTests
