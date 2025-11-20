@@ -258,6 +258,8 @@ Based on real testing, TOON format is more efficient when:
 
 This library implements the [official TOON specification v2.0](https://github.com/toon-format/spec/blob/main/SPEC.md).
 
+![TOON Format](docs/assets/toon-og.png)
+
 ### Format Rules
 
 1. **Simple Properties**: `key: value`
