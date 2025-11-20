@@ -346,17 +346,20 @@ public final class ToonConverter {
     private static void appendValueInline(final StringBuilder toon, final Object value) {
         if (value == null) {
             toon.append(TOON_NULL);
-        } else if (value instanceof Iterable<?> iterable) {
+        } else if (value instanceof Iterable) {
             // Nested array - convert to TOON format inline
+            final Iterable<?> iterable = (Iterable<?>) value;
             final List<?> list = iterableToList(iterable);
             // Arrays inside array values are always treated as simple arrays
             convertSimpleArrayToToon(toon, list);
         } else if (value instanceof Map) {
             // Nested object - this shouldn't happen in array values according to TOON spec
             // But handle it gracefully by converting to compact representation
+            @SuppressWarnings("unchecked")
+            final Map<String, Object> map = (Map<String, Object>) value;
             toon.append(TOON_OBJECT_START);
             boolean first = true;
-            for (final Map.Entry<?, ?> entry : map.entrySet()) {
+            for (final Map.Entry<String, Object> entry : map.entrySet()) {
                 if (!first) {
                     toon.append(TOON_SEPARATOR);
                 }
