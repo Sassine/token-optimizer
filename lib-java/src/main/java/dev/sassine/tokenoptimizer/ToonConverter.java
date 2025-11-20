@@ -58,7 +58,8 @@ public final class ToonConverter {
             return convertMapToToon(map, "");
         } catch (Exception e) {
             // If it fails, try to convert string directly using pattern matching
-            if (obj instanceof String jsonString) {
+            if (obj instanceof String) {
+                final String jsonString = (String) obj;
                 try {
                     return jsonToToon(jsonString);
                 } catch (Exception ex) {
@@ -124,7 +125,8 @@ public final class ToonConverter {
             toon.append(indent).append(key);
             
             // Check if value is an array
-            if (value instanceof Iterable<?> iterable) {
+            if (value instanceof Iterable) {
+                final Iterable<?> iterable = (Iterable<?>) value;
                 final List<?> list = iterableToList(iterable);
                 if (isArrayOfObjects(list)) {
                     // Array of objects: key[count]{...}: or key[count]:
@@ -156,11 +158,12 @@ public final class ToonConverter {
     private static void appendValueToToon(final StringBuilder toon, final Object value, final String indent) {
         if (value == null) {
             toon.append(" ").append(TOON_NULL);
-        } else if (value instanceof Map<?, ?> map) {
+        } else if (value instanceof Map) {
             // Nested object - add newline and indent
             toon.append(NEWLINE);
-            toon.append(convertMapToToon((Map<String, Object>) map, indent + INDENT));
-        } else if (value instanceof Iterable<?> iterable) {
+            toon.append(convertMapToToon((Map<String, Object>) value, indent + INDENT));
+        } else if (value instanceof Iterable) {
+            final Iterable<?> iterable = (Iterable<?>) value;
             // Array - check if it's an array of objects
             final List<?> list = iterableToList(iterable);
             if (isArrayOfObjects(list)) {
@@ -170,10 +173,10 @@ public final class ToonConverter {
                 // Simple array - no space before, convertSimpleArrayToToon adds the format
                 convertSimpleArrayToToon(toon, list);
             }
-        } else if (value instanceof String str) {
-            toon.append(" ").append(str);
-        } else if (value instanceof Boolean bool) {
-            toon.append(" ").append(bool);
+        } else if (value instanceof String) {
+            toon.append(" ").append((String) value);
+        } else if (value instanceof Boolean) {
+            toon.append(" ").append(value);
         } else if (value instanceof Number) {
             toon.append(" ").append(value.toString());
         } else {
@@ -343,17 +346,20 @@ public final class ToonConverter {
     private static void appendValueInline(final StringBuilder toon, final Object value) {
         if (value == null) {
             toon.append(TOON_NULL);
-        } else if (value instanceof Iterable<?> iterable) {
+        } else if (value instanceof Iterable) {
             // Nested array - convert to TOON format inline
+            final Iterable<?> iterable = (Iterable<?>) value;
             final List<?> list = iterableToList(iterable);
             // Arrays inside array values are always treated as simple arrays
             convertSimpleArrayToToon(toon, list);
-        } else if (value instanceof Map<?, ?> map) {
+        } else if (value instanceof Map) {
             // Nested object - this shouldn't happen in array values according to TOON spec
             // But handle it gracefully by converting to compact representation
+            @SuppressWarnings("unchecked")
+            final Map<String, Object> map = (Map<String, Object>) value;
             toon.append(TOON_OBJECT_START);
             boolean first = true;
-            for (final Map.Entry<?, ?> entry : map.entrySet()) {
+            for (final Map.Entry<String, Object> entry : map.entrySet()) {
                 if (!first) {
                     toon.append(TOON_SEPARATOR);
                 }
@@ -362,7 +368,8 @@ public final class ToonConverter {
                 appendValueInline(toon, entry.getValue());
             }
             toon.append(TOON_OBJECT_END);
-        } else if (value instanceof String str) {
+        } else if (value instanceof String) {
+            final String str = (String) value;
             // Strings need quotes if they contain special characters or are pure numbers
             if (needsQuotesInArray(str)) {
                 toon.append(QUOTE).append(str).append(QUOTE);
@@ -423,11 +430,12 @@ public final class ToonConverter {
     private static void appendPropertyValueToToon(final StringBuilder toon, final Object value, final String indent) {
         if (value == null) {
             toon.append(" ").append(TOON_NULL);
-        } else if (value instanceof Map<?, ?> map) {
+        } else if (value instanceof Map) {
             // Nested object - add newline and indent
             toon.append(NEWLINE);
-            toon.append(convertMapToToon((Map<String, Object>) map, indent + INDENT));
-        } else if (value instanceof Iterable<?> iterable) {
+            toon.append(convertMapToToon((Map<String, Object>) value, indent + INDENT));
+        } else if (value instanceof Iterable) {
+            final Iterable<?> iterable = (Iterable<?>) value;
             // Array - check if it's an array of objects
             final List<?> list = iterableToList(iterable);
             if (isArrayOfObjects(list)) {
@@ -437,10 +445,10 @@ public final class ToonConverter {
                 // Simple array
                 convertSimpleArrayToToon(toon, list);
             }
-        } else if (value instanceof String str) {
-            toon.append(" ").append(str);
-        } else if (value instanceof Boolean bool) {
-            toon.append(" ").append(bool);
+        } else if (value instanceof String) {
+            toon.append(" ").append((String) value);
+        } else if (value instanceof Boolean) {
+            toon.append(" ").append(value);
         } else if (value instanceof Number) {
             toon.append(" ").append(value.toString());
         } else {

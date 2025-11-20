@@ -100,7 +100,7 @@ mvn test
 
 ## Requirements
 
-- Java 17+ (compiled with Java 24)
+- Java 11+ (compiled with Java 24, bytecode compatible with Java 11+)
 - Maven 3.6+
 
 See main [README.md](../README.md) for full documentation.
