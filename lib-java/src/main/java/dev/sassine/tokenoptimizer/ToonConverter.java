@@ -125,7 +125,8 @@ public final class ToonConverter {
             toon.append(indent).append(key);
             
             // Check if value is an array
-            if (value instanceof Iterable<?> iterable) {
+            if (value instanceof Iterable) {
+                final Iterable<?> iterable = (Iterable<?>) value;
                 final List<?> list = iterableToList(iterable);
                 if (isArrayOfObjects(list)) {
                     // Array of objects: key[count]{...}: or key[count]:
@@ -364,7 +365,8 @@ public final class ToonConverter {
                 appendValueInline(toon, entry.getValue());
             }
             toon.append(TOON_OBJECT_END);
-        } else if (value instanceof String str) {
+        } else if (value instanceof String) {
+            final String str = (String) value;
             // Strings need quotes if they contain special characters or are pure numbers
             if (needsQuotesInArray(str)) {
                 toon.append(QUOTE).append(str).append(QUOTE);
