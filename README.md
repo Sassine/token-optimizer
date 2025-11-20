@@ -3,8 +3,18 @@
 [![Java](https://img.shields.io/badge/Java-11+-orange.svg)](https://www.oracle.com/java/)
 [![License](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 [![TOON Spec](https://img.shields.io/badge/TOON-Spec%20v2.0-green.svg)](https://github.com/toon-format/spec)
+[![Maven Central](https://img.shields.io/maven-central/v/dev.sassine/token-optimizer.svg)](https://central.sonatype.com/artifact/dev.sassine/token-optimizer)
+[![Release](https://img.shields.io/github/v/release/Sassine/token-optimizer)](https://github.com/Sassine/token-optimizer/releases)
 
 Java library to optimize payload format by comparing JSON vs TOON and automatically returning the format that consumes fewer tokens.
+
+## 📦 Latest Release
+
+**Current Version:** `1.0.0`  
+**Status:** ✅ Published to [Maven Central](https://central.sonatype.com/artifact/dev.sassine/token-optimizer)  
+**Release Date:** November 2024
+
+[View on Maven Central](https://central.sonatype.com/artifact/dev.sassine/token-optimizer) | [View Releases](https://github.com/Sassine/token-optimizer/releases)
 
 ## 📋 Description
 
@@ -51,9 +61,11 @@ Add the dependency to your `pom.xml`:
 <dependency>
     <groupId>dev.sassine</groupId>
     <artifactId>token-optimizer</artifactId>
-    <version>0.0.1-SNAPSHOT</version>
+    <version>1.0.0</version>
 </dependency>
 ```
+
+**📦 Available on Maven Central:** [central.sonatype.com/artifact/dev.sassine/token-optimizer](https://central.sonatype.com/artifact/dev.sassine/token-optimizer)
 
 ### Basic Usage
 
