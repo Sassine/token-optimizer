@@ -34,7 +34,10 @@ jobs:
       
       - name: Publish to GitHub Packages
         working-directory: ./lib-java
-        run: mvn deploy -DskipTests -s settings.xml
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          mvn deploy -DskipTests \
+            -DrepositoryId=github \
+            -Durl=https://maven.pkg.github.com/Sassine/token-optimizer \
+            -Dserver.username=Sassine \
+            -Dserver.password=${{ secrets.GITHUB_TOKEN }}
 
