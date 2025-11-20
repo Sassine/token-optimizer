@@ -50,7 +50,9 @@ public final class ToonComparisonClient {
      */
     public String convertToToonOfficial(final Object jsonObject) throws IOException, InterruptedException {
         final String requestBody = OBJECT_MAPPER.writeValueAsString(
-            Map.of("json", jsonObject)
+            new HashMap<String, Object>() {{
+                put("json", jsonObject);
+            }}
         );
         
         final HttpRequest request = HttpRequest.newBuilder()
