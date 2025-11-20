@@ -1,6 +1,6 @@
 # Token Optimizer
 
-[![Java](https://img.shields.io/badge/Java-24-orange.svg)](https://www.oracle.com/java/)
+[![Java](https://img.shields.io/badge/Java-11+-orange.svg)](https://www.oracle.com/java/)
 [![License](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 [![TOON Spec](https://img.shields.io/badge/TOON-Spec%20v2.0-green.svg)](https://github.com/toon-format/spec)
 
@@ -21,7 +21,7 @@ This library implements the [official TOON specification v2.0](https://github.co
   - **Tiktoken integration** (accurate, model-specific counting for GPT, Claude, etc.)
 - ✅ Automatically returns the format with the lowest token count
 - ✅ Supports simple and complex objects (nested, arrays, etc.)
-- ✅ Compiled with Java 24, compatible with Java 17+ projects
+- ✅ Compiled with Java 24, compatible with Java 11+ projects
 - ✅ **100% compliant with official TOON specification v2.0**
 - ✅ Validated against official `@toon-format/toon` library
 
@@ -376,7 +376,7 @@ See `frontend/README.md` for more details.
 
 ## ⚙️ Requirements
 
-- **Java 17 or higher** (library compiled with Java 24, bytecode compatible with Java 17+)
+- **Java 11 or higher** (library compiled with Java 24, bytecode compatible with Java 11+)
 - **Maven 3.6+** (for building)
 - **Jackson Databind** (included as dependency)
 - **jtokkit** (included as dependency) - For tiktoken integration
@@ -405,7 +405,7 @@ The library follows clean code principles and performance optimizations:
 - ✅ **Null safety**: Proper null checks and validation
 - ✅ **Constants**: Magic numbers replaced with named constants
 - ✅ **Optimized algorithms**: Efficient token counting without unnecessary array creation
-- ✅ **Pattern matching**: Uses modern Java pattern matching with `instanceof` to avoid redundant casts
+- ✅ **Type safety**: Proper type checking and casting for compatibility
 
 ## 📝 License
 
