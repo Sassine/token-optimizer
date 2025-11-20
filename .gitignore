@@ -160,3 +160,28 @@ setup-github.sh
 setup-github.bat
 GITHUB_SETUP.md
 .gitattributes
+
+# ============================================
+# Sensitive Files - NEVER COMMIT!
+# ============================================
+# GPG Keys
+private-key.asc
+*.asc
+*.gpg
+.gpg-key-id.txt
+*.key
+*.pem
+*.p12
+*.jks
+*.keystore
+
+# Secrets and credentials
+secrets/
+*.secret
+*.token
+*.password
+settings.xml
+lib-java/settings.xml
+
+# Maven credentials (if any)
+.m2/settings-security.xml
