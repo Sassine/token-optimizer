@@ -58,7 +58,8 @@ public final class ToonConverter {
             return convertMapToToon(map, "");
         } catch (Exception e) {
             // If it fails, try to convert string directly using pattern matching
-            if (obj instanceof String jsonString) {
+            if (obj instanceof String) {
+                final String jsonString = (String) obj;
                 try {
                     return jsonToToon(jsonString);
                 } catch (Exception ex) {
@@ -170,10 +171,10 @@ public final class ToonConverter {
                 // Simple array - no space before, convertSimpleArrayToToon adds the format
                 convertSimpleArrayToToon(toon, list);
             }
-        } else if (value instanceof String str) {
-            toon.append(" ").append(str);
-        } else if (value instanceof Boolean bool) {
-            toon.append(" ").append(bool);
+        } else if (value instanceof String) {
+            toon.append(" ").append((String) value);
+        } else if (value instanceof Boolean) {
+            toon.append(" ").append(value);
         } else if (value instanceof Number) {
             toon.append(" ").append(value.toString());
         } else {
@@ -437,10 +438,10 @@ public final class ToonConverter {
                 // Simple array
                 convertSimpleArrayToToon(toon, list);
             }
-        } else if (value instanceof String str) {
-            toon.append(" ").append(str);
-        } else if (value instanceof Boolean bool) {
-            toon.append(" ").append(bool);
+        } else if (value instanceof String) {
+            toon.append(" ").append((String) value);
+        } else if (value instanceof Boolean) {
+            toon.append(" ").append(value);
         } else if (value instanceof Number) {
             toon.append(" ").append(value.toString());
         } else {
