@@ -3,8 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Token Optimizer - Optimize Payload Format for LLMs</title>
-    <meta name="description" content="Java library to optimize payload format by comparing JSON vs TOON and automatically returning the format that consumes fewer tokens.">
+    <title>Token Optimizer - Java Library Documentation</title>
+    <meta name="description" content="Java library to optimize payload format by comparing JSON vs TOON and automatically returning the format that consumes fewer tokens for LLM API calls.">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css">
     <style>
         * {
             margin: 0;
@@ -13,39 +14,63 @@
         }
 
         :root {
-            --primary: #2563eb;
-            --primary-dark: #1e40af;
-            --secondary: #10b981;
-            --text: #1f2937;
-            --text-light: #6b7280;
-            --bg: #ffffff;
-            --bg-light: #f9fafb;
+            /* Dark theme (default) */
+            --bg-primary: #0a0a0a;
+            --bg-secondary: #1a1a1a;
+            --bg-tertiary: #2a2a2a;
+            --text-primary: #f5f5f5;
+            --text-secondary: #b3b3b3;
+            --text-tertiary: #808080;
+            --border: #333333;
+            --accent: #e5e5e5;
+            --accent-hover: #ffffff;
+            --success: #34d399;
+            --warning: #fbbf24;
+            --code-bg: #1a1a1a;
+            --code-text: #e5e5e5;
+            --shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.5);
+            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.7);
+        }
+
+        [data-theme="light"] {
+            --bg-primary: #ffffff;
+            --bg-secondary: #f8f9fa;
+            --bg-tertiary: #f1f3f5;
+            --text-primary: #1a1a1a;
+            --text-secondary: #6b7280;
+            --text-tertiary: #9ca3af;
             --border: #e5e7eb;
-            --code-bg: #f3f4f6;
+            --accent: #4a4a4a;
+            --accent-hover: #1a1a1a;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --code-bg: #1e293b;
+            --code-text: #e2e8f0;
             --shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
             --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
         }
 
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-            line-height: 1.6;
-            color: var(--text);
-            background: var(--bg);
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', sans-serif;
+            line-height: 1.7;
+            color: var(--text-primary);
+            background: var(--bg-primary);
+            transition: background 0.3s, color 0.3s;
         }
 
         /* Header */
         header {
-            background: var(--bg);
+            background: var(--bg-primary);
             border-bottom: 1px solid var(--border);
             position: sticky;
             top: 0;
-            z-index: 100;
+            z-index: 1000;
             backdrop-filter: blur(10px);
-            background: rgba(255, 255, 255, 0.9);
+            background: rgba(var(--bg-primary-rgb), 0.9);
         }
 
         nav {
-            max-width: 1200px;
+            max-width: 1400px;
             margin: 0 auto;
             padding: 1rem 2rem;
             display: flex;
@@ -56,8 +81,17 @@
         .logo {
             font-size: 1.5rem;
             font-weight: 700;
-            color: var(--primary);
+            color: var(--accent);
             text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .nav-right {
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
         }
 
         .nav-links {
@@ -67,112 +101,206 @@
         }
 
         .nav-links a {
-            color: var(--text);
+            color: var(--text-secondary);
             text-decoration: none;
             font-weight: 500;
             transition: color 0.2s;
         }
 
         .nav-links a:hover {
-            color: var(--primary);
+            color: var(--accent);
         }
 
-        /* Hero Section */
-        .hero {
-            max-width: 1200px;
+        .theme-toggle {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 0.5rem;
+            padding: 0.5rem 1rem;
+            cursor: pointer;
+            font-size: 1.2rem;
+            transition: all 0.2s;
+        }
+
+        .theme-toggle:hover {
+            background: var(--bg-tertiary);
+        }
+
+        /* Container */
+        .container {
+            max-width: 1400px;
             margin: 0 auto;
-            padding: 4rem 2rem;
-            text-align: center;
+            padding: 2rem;
+            display: grid;
+            grid-template-columns: 250px 1fr;
+            gap: 3rem;
         }
 
-        .hero h1 {
-            font-size: 3.5rem;
+        /* Sidebar */
+        .sidebar {
+            position: sticky;
+            top: 80px;
+            height: fit-content;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 0.75rem;
+            padding: 1.5rem;
+        }
+
+        .sidebar h3 {
+            font-size: 0.875rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            color: var(--text-tertiary);
+            margin-bottom: 1rem;
+            letter-spacing: 0.05em;
+        }
+
+        .sidebar ul {
+            list-style: none;
+        }
+
+        .sidebar li {
+            margin-bottom: 0.5rem;
+        }
+
+        .sidebar a {
+            color: var(--text-secondary);
+            text-decoration: none;
+            display: block;
+            padding: 0.5rem 0.5rem 0.5rem 0.75rem;
+            border-radius: 0.5rem;
+            transition: all 0.2s;
+            border-left: 3px solid transparent;
+        }
+
+        .sidebar a:hover {
+            background: var(--bg-tertiary);
+            color: var(--accent);
+        }
+
+        .sidebar a.active {
+            background: var(--bg-tertiary);
+            color: var(--text-primary);
+            border-left: 3px solid var(--accent);
+            font-weight: 600;
+            padding-left: 0.5rem;
+        }
+
+        /* Main Content */
+        .content {
+            min-width: 0;
+        }
+
+        section {
+            margin-bottom: 4rem;
+            scroll-margin-top: 100px;
+        }
+
+        h1 {
+            font-size: 3rem;
             font-weight: 800;
             margin-bottom: 1rem;
-            background: linear-gradient(135deg, var(--primary), var(--secondary));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
+            color: var(--text-primary);
         }
 
-        .hero .subtitle {
-            font-size: 1.5rem;
-            color: var(--text-light);
-            margin-bottom: 2rem;
-            max-width: 700px;
-            margin-left: auto;
-            margin-right: auto;
-        }
-
-        .cta-buttons {
-            display: flex;
-            gap: 1rem;
-            justify-content: center;
-            flex-wrap: wrap;
-        }
-
-        .btn {
-            padding: 0.75rem 2rem;
-            border-radius: 0.5rem;
-            text-decoration: none;
-            font-weight: 600;
-            transition: all 0.2s;
-            display: inline-block;
-        }
-
-        .btn-primary {
-            background: var(--primary);
-            color: white;
-        }
-
-        .btn-primary:hover {
-            background: var(--primary-dark);
-            transform: translateY(-2px);
-            box-shadow: var(--shadow-lg);
-        }
-
-        .btn-secondary {
-            background: var(--bg-light);
-            color: var(--text);
-            border: 1px solid var(--border);
-        }
-
-        .btn-secondary:hover {
-            background: var(--border);
-        }
-
-        /* Features Grid */
-        .features {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 4rem 2rem;
-        }
-
-        .section-title {
-            font-size: 2.5rem;
+        h2 {
+            font-size: 2rem;
             font-weight: 700;
-            text-align: center;
-            margin-bottom: 3rem;
+            margin-top: 3rem;
+            margin-bottom: 1.5rem;
+            color: var(--text-primary);
+            border-bottom: 2px solid var(--border);
+            padding-bottom: 0.5rem;
         }
 
-        .features-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 2rem;
+        h3 {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-top: 2rem;
+            margin-bottom: 1rem;
+            color: var(--text-primary);
         }
 
-        .feature-card {
-            background: var(--bg);
+        h4 {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-top: 1.5rem;
+            margin-bottom: 0.75rem;
+            color: var(--text-primary);
+        }
+
+        p {
+            margin-bottom: 1rem;
+            color: var(--text-secondary);
+            line-height: 1.8;
+        }
+
+        /* Code Blocks */
+        pre {
+            background: var(--code-bg);
+            border: 1px solid var(--border);
+            border-radius: 0.75rem;
+            padding: 1.5rem;
+            overflow-x: auto;
+            margin: 1.5rem 0;
+        }
+
+        pre code {
+            color: var(--code-text);
+            font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', 'Consolas', monospace;
+            font-size: 0.9rem;
+            line-height: 1.6;
+        }
+
+        code {
+            background: var(--bg-tertiary);
+            padding: 0.2rem 0.4rem;
+            border-radius: 0.25rem;
+            font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', 'Consolas', monospace;
+            font-size: 0.9em;
+            color: var(--accent);
+        }
+
+        /* Cards */
+        .card {
+            background: var(--bg-secondary);
             border: 1px solid var(--border);
             border-radius: 0.75rem;
             padding: 2rem;
+            margin: 1.5rem 0;
+            transition: all 0.3s;
+        }
+
+        .card:hover {
+            box-shadow: var(--shadow-lg);
+            transform: translateY(-2px);
+        }
+
+        .card h3 {
+            margin-top: 0;
+            color: var(--accent);
+        }
+
+        /* Feature Grid */
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin: 2rem 0;
+        }
+
+        .feature-card {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 0.75rem;
+            padding: 1.5rem;
             transition: all 0.3s;
         }
 
         .feature-card:hover {
+            border-color: var(--accent);
             transform: translateY(-4px);
             box-shadow: var(--shadow-lg);
-            border-color: var(--primary);
         }
 
         .feature-icon {
@@ -180,189 +308,197 @@
             margin-bottom: 1rem;
         }
 
-        .feature-card h3 {
-            font-size: 1.25rem;
-            margin-bottom: 0.5rem;
-            color: var(--primary);
+        /* Badges */
+        .badge {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border);
+            border-radius: 0.5rem;
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+            margin: 0.25rem;
         }
 
-        .feature-card p {
-            color: var(--text-light);
+        .badge-success {
+            background: var(--success);
+            color: white;
+            border-color: var(--success);
         }
 
-        /* Stats Section */
-        .stats {
-            background: var(--bg-light);
-            padding: 4rem 2rem;
-        }
-
-        .stats-container {
-            max-width: 1200px;
-            margin: 0 auto;
-        }
-
-        .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 2rem;
-            margin-top: 2rem;
-        }
-
-        .stat-card {
-            text-align: center;
-            padding: 2rem;
-            background: var(--bg);
+        /* Comparison Table */
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 2rem 0;
+            background: var(--bg-secondary);
             border-radius: 0.75rem;
+            overflow: hidden;
+        }
+
+        .comparison-table th,
+        .comparison-table td {
+            padding: 1rem;
+            text-align: left;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .comparison-table th {
+            background: var(--bg-tertiary);
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .comparison-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        /* Buttons */
+        .btn {
+            display: inline-block;
+            padding: 0.75rem 1.5rem;
+            background: var(--accent);
+            color: var(--bg-primary);
+            text-decoration: none;
+            border-radius: 0.5rem;
+            font-weight: 600;
+            transition: all 0.2s;
+            border: none;
+            cursor: pointer;
+        }
+
+        .btn:hover {
+            background: var(--accent-hover);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .btn-secondary {
+            background: var(--bg-tertiary);
+            color: var(--text-primary);
             border: 1px solid var(--border);
         }
 
+        .btn-secondary:hover {
+            background: var(--bg-secondary);
+            border-color: var(--accent);
+        }
+
+        /* Alert Boxes */
+        .alert {
+            padding: 1rem 1.5rem;
+            border-radius: 0.75rem;
+            margin: 1.5rem 0;
+            border-left: 4px solid;
+        }
+
+        .alert-info {
+            background: rgba(59, 130, 246, 0.1);
+            border-color: var(--accent);
+            color: var(--accent);
+        }
+
+        .alert-success {
+            background: rgba(16, 185, 129, 0.1);
+            border-color: var(--success);
+            color: var(--success);
+        }
+
+        .alert-warning {
+            background: rgba(245, 158, 11, 0.1);
+            border-color: var(--warning);
+            color: var(--warning);
+        }
+
+        /* Hero Section */
+        .hero {
+            background: linear-gradient(135deg, var(--bg-secondary), var(--bg-tertiary));
+            border-radius: 1rem;
+            padding: 4rem 2rem;
+            text-align: center;
+            margin-bottom: 4rem;
+        }
+
+        .hero h1 {
+            font-size: 3.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .hero p {
+            font-size: 1.25rem;
+            color: var(--text-secondary);
+            max-width: 700px;
+            margin: 0 auto 2rem;
+        }
+
+        /* Stats */
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin: 2rem 0;
+        }
+
+        .stat {
+            text-align: center;
+            padding: 1.5rem;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 0.75rem;
+        }
+
         .stat-number {
-            font-size: 3rem;
+            font-size: 2.5rem;
             font-weight: 800;
-            color: var(--primary);
+            color: var(--accent);
             margin-bottom: 0.5rem;
         }
 
         .stat-label {
-            color: var(--text-light);
-            font-size: 1.1rem;
-        }
-
-        /* Code Examples */
-        .examples {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 4rem 2rem;
-        }
-
-        .code-block {
-            background: var(--code-bg);
-            border: 1px solid var(--border);
-            border-radius: 0.5rem;
-            padding: 1.5rem;
-            overflow-x: auto;
-            margin: 1rem 0;
-        }
-
-        .code-block pre {
-            margin: 0;
-            font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
-            font-size: 0.9rem;
-            line-height: 1.5;
-        }
-
-        .code-block code {
-            color: var(--text);
-        }
-
-        /* Comparison Section */
-        .comparison {
-            background: var(--bg-light);
-            padding: 4rem 2rem;
-        }
-
-        .comparison-container {
-            max-width: 1200px;
-            margin: 0 auto;
-        }
-
-        .comparison-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
-            gap: 2rem;
-            margin-top: 2rem;
-        }
-
-        .format-card {
-            background: var(--bg);
-            border: 1px solid var(--border);
-            border-radius: 0.75rem;
-            padding: 2rem;
-        }
-
-        .format-card h3 {
-            margin-bottom: 1rem;
-            color: var(--primary);
-        }
-
-        .format-card.winner {
-            border-color: var(--secondary);
-            border-width: 2px;
-        }
-
-        .format-card.winner::before {
-            content: "🏆 Winner";
-            display: block;
-            background: var(--secondary);
-            color: white;
-            padding: 0.5rem 1rem;
-            border-radius: 0.5rem;
-            margin-bottom: 1rem;
+            color: var(--text-secondary);
             font-size: 0.875rem;
-            font-weight: 600;
         }
 
         /* Footer */
-        footer {
-            background: var(--text);
-            color: white;
-            padding: 3rem 2rem;
-            text-align: center;
+        footer a {
+            transition: color 0.2s;
         }
 
-        .footer-links {
-            display: flex;
-            justify-content: center;
-            gap: 2rem;
-            margin-bottom: 2rem;
-            flex-wrap: wrap;
-        }
-
-        .footer-links a {
-            color: white;
-            text-decoration: none;
-            opacity: 0.8;
-            transition: opacity 0.2s;
-        }
-
-        .footer-links a:hover {
-            opacity: 1;
-        }
-
-        /* Badges */
-        .badges {
-            display: flex;
-            gap: 1rem;
-            justify-content: center;
-            margin: 2rem 0;
-            flex-wrap: wrap;
-        }
-
-        .badge {
-            padding: 0.5rem 1rem;
-            background: var(--bg-light);
-            border: 1px solid var(--border);
-            border-radius: 0.5rem;
-            font-size: 0.875rem;
-            color: var(--text);
+        footer a:hover {
+            color: var(--accent) !important;
         }
 
         /* Responsive */
-        @media (max-width: 768px) {
-            .hero h1 {
-                font-size: 2.5rem;
+        @media (max-width: 1024px) {
+            .container {
+                grid-template-columns: 1fr;
             }
 
-            .hero .subtitle {
-                font-size: 1.25rem;
+            .sidebar {
+                position: relative;
+                top: 0;
             }
 
             .nav-links {
                 display: none;
             }
+        }
 
-            .comparison-grid {
-                grid-template-columns: 1fr;
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2rem;
+            }
+
+            h2 {
+                font-size: 1.5rem;
+            }
+
+            .hero {
+                padding: 2rem 1rem;
+            }
+
+            .hero h1 {
+                font-size: 2.5rem;
             }
         }
     </style>
@@ -370,187 +506,588 @@
 <body>
     <header>
         <nav>
-            <a href="#" class="logo">Token Optimizer</a>
-            <ul class="nav-links">
-                <li><a href="#features">Features</a></li>
-                <li><a href="#examples">Examples</a></li>
-                <li><a href="#benchmarks">Benchmarks</a></li>
-                <li><a href="https://github.com/Sassine/token-optimizer" target="_blank">GitHub</a></li>
-            </ul>
+            <a href="#" class="logo">
+                <span>⚡</span>
+                <span>Token Optimizer</span>
+            </a>
+            <div class="nav-right">
+                <ul class="nav-links">
+                    <li><a href="#overview">Overview</a></li>
+                    <li><a href="#getting-started">Getting Started</a></li>
+                    <li><a href="#api">API</a></li>
+                    <li><a href="#examples">Examples</a></li>
+                    <li><a href="https://github.com/Sassine/token-optimizer" target="_blank">GitHub</a></li>
+                </ul>
+                <button class="theme-toggle" onclick="toggleTheme()" aria-label="Toggle theme">
+                    <span id="theme-icon">🌙</span>
+                </button>
+            </div>
         </nav>
     </header>
 
-    <main>
-        <section class="hero">
-            <h1>Token Optimizer</h1>
-            <p class="subtitle">
-                Java library to optimize payload format by comparing JSON vs TOON and automatically returning the format that consumes fewer tokens.
-            </p>
-            <div class="badges">
-                <span class="badge">Java 24</span>
-                <span class="badge">TOON Spec v2.0</span>
-                <span class="badge">Tiktoken Support</span>
-                <span class="badge">MIT License</span>
-            </div>
-            <div class="cta-buttons">
-                <a href="https://github.com/Sassine/token-optimizer" class="btn btn-primary" target="_blank">Get Started</a>
-                <a href="#examples" class="btn btn-secondary">View Examples</a>
-            </div>
-        </section>
+    <div class="container">
+        <aside class="sidebar">
+            <h3>Documentation</h3>
+            <ul>
+                <li><a href="#overview" class="active">Overview</a></li>
+                <li><a href="#what-is-toon">What is TOON?</a></li>
+                <li><a href="#why-token-optimizer">Why Token Optimizer?</a></li>
+                <li><a href="#getting-started">Getting Started</a></li>
+                <li><a href="#installation">Installation</a></li>
+                <li><a href="#basic-usage">Basic Usage</a></li>
+                <li><a href="#token-counting">Token Counting</a></li>
+                <li><a href="#api">API Reference</a></li>
+                <li><a href="#examples">Examples</a></li>
+                <li><a href="#benchmarks">Benchmarks</a></li>
+                <li><a href="#toon-spec">TOON Specification</a></li>
+            </ul>
+        </aside>
 
-        <section class="stats">
-            <div class="stats-container">
-                <h2 class="section-title">Why Token Optimizer?</h2>
-                <div class="stats-grid">
-                    <div class="stat-card">
+        <main class="content">
+            <section id="overview">
+                <div class="hero">
+                <h1>Token Optimizer</h1>
+                <p>
+                    Java library to optimize payload format by comparing JSON vs TOON and automatically returning 
+                    the format that consumes fewer tokens for LLM API calls.
+                </p>
+                <div style="margin-top: 2rem;">
+                    <a href="#getting-started" class="btn">Get Started</a>
+                    <a href="https://github.com/Sassine/token-optimizer" class="btn btn-secondary" target="_blank">View on GitHub</a>
+                </div>
+                </div>
+
+                <div class="stats">
+                    <div class="stat">
                         <div class="stat-number">~40%</div>
                         <div class="stat-label">Token Reduction</div>
                     </div>
-                    <div class="stat-card">
+                    <div class="stat">
                         <div class="stat-number">100%</div>
                         <div class="stat-label">TOON Spec Compliant</div>
                     </div>
-                    <div class="stat-card">
+                    <div class="stat">
                         <div class="stat-number">2</div>
                         <div class="stat-label">Counting Methods</div>
                     </div>
-                    <div class="stat-card">
+                    <div class="stat">
                         <div class="stat-number">17+</div>
                         <div class="stat-label">Java Compatible</div>
                     </div>
                 </div>
-            </div>
-        </section>
+            </section>
 
-        <section id="features" class="features">
-            <h2 class="section-title">Key Features</h2>
-            <div class="features-grid">
-                <div class="feature-card">
-                    <div class="feature-icon">📊</div>
-                    <h3>Token-Efficient & Accurate</h3>
-                    <p>Automatically selects the format (JSON or TOON) that uses fewer tokens, reducing LLM API costs while maintaining accuracy.</p>
-                </div>
-                <div class="feature-card">
-                    <div class="feature-icon">🔁</div>
-                    <h3>JSON Data Model</h3>
-                    <p>Encodes the same objects, arrays, and primitives as JSON with deterministic, lossless round-trips. No data loss.</p>
-                </div>
-                <div class="feature-card">
-                    <div class="feature-icon">🎯</div>
-                    <h3>Dual Token Counting</h3>
-                    <p>Generic estimation for any model, or precise tiktoken integration for GPT-4, GPT-3.5, Claude, and more.</p>
-                </div>
-                <div class="feature-card">
-                    <div class="feature-icon">🛤️</div>
-                    <h3>LLM-Friendly Format</h3>
-                    <p>TOON format provides explicit [N] lengths and {fields} headers, giving models a clear schema to follow.</p>
-                </div>
-                <div class="feature-card">
-                    <div class="feature-icon">📐</div>
-                    <h3>Minimal Syntax</h3>
-                    <p>Uses indentation instead of braces and minimizes quoting, giving YAML-like readability with CSV-style compactness.</p>
-                </div>
-                <div class="feature-card">
-                    <div class="feature-icon">🧺</div>
-                    <h3>Tabular Arrays</h3>
-                    <p>Uniform arrays of objects collapse into tables that declare fields once and stream row values line by line.</p>
-                </div>
-            </div>
-        </section>
+            <section id="what-is-toon">
+                <h2>What is TOON?</h2>
+                
+                <p>
+                    <strong>TOON (Token-Oriented Object Notation)</strong> is a compact, human-readable encoding format 
+                    designed specifically for LLM prompts. It was created to reduce token consumption while maintaining 
+                    the same data model as JSON.
+                </p>
 
-        <section id="examples" class="examples">
-            <h2 class="section-title">Quick Start</h2>
-            
-            <h3 style="margin-top: 2rem; margin-bottom: 1rem;">Installation</h3>
-            <div class="code-block">
-                <pre><code>&lt;dependency&gt;
+                <div class="card">
+                    <h3>Key Features of TOON</h3>
+                    <ul style="margin-left: 2rem; color: var(--text-secondary);">
+                        <li><strong>Token-Efficient:</strong> Uses ~40% fewer tokens than JSON in many cases</li>
+                        <li><strong>JSON Data Model:</strong> Encodes the same objects, arrays, and primitives as JSON</li>
+                        <li><strong>LLM-Friendly:</strong> Explicit [N] lengths and {fields} headers provide clear schema</li>
+                        <li><strong>Minimal Syntax:</strong> Uses indentation instead of braces, minimizes quoting</li>
+                        <li><strong>Tabular Arrays:</strong> Uniform arrays collapse into compact table format</li>
+                    </ul>
+                </div>
+
+                <h3>TOON vs JSON Example</h3>
+                <p>Here's how the same data looks in both formats:</p>
+
+                <h4>JSON Format:</h4>
+                <pre><code class="language-json">{
+  "users": [
+    {
+      "id": 1,
+      "name": "John",
+      "email": "john@example.com"
+    },
+    {
+      "id": 2,
+      "name": "Jane",
+      "email": "jane@example.com"
+    }
+  ]
+}</code></pre>
+
+                <h4>TOON Format:</h4>
+                <pre><code class="language-text">users[2]{id,name,email}:
+  1,John,john@example.com
+  2,Jane,jane@example.com</code></pre>
+
+                <div class="alert alert-info">
+                    <strong>💡 Note:</strong> TOON uses a compact tabular format for uniform arrays, significantly reducing token count 
+                    while maintaining readability. The library implements the 
+                    <a href="https://github.com/toon-format/spec" target="_blank" style="color: inherit;">official TOON specification v2.0</a>.
+                </div>
+            </section>
+
+            <section id="why-token-optimizer">
+                <h2>Why Token Optimizer?</h2>
+
+                <p>
+                    When building applications with Large Language Models (LLMs), every token counts. API costs are 
+                    directly proportional to the number of tokens you send. <strong>Token Optimizer</strong> helps you 
+                    make the right decision automatically.
+                </p>
+
+                <div class="card">
+                    <h3>🎯 The Problem</h3>
+                    <p>
+                        You need to send structured data to an LLM API. Should you use JSON or TOON? The answer depends 
+                        on your data structure:
+                    </p>
+                    <ul style="margin-left: 2rem; color: var(--text-secondary);">
+                        <li><strong>Simple objects:</strong> JSON might be more efficient</li>
+                        <li><strong>Arrays of uniform objects:</strong> TOON can save 40-90% tokens</li>
+                        <li><strong>Nested structures:</strong> Depends on the depth and uniformity</li>
+                    </ul>
+                    <p style="margin-top: 1rem;">
+                        Making this decision manually is time-consuming and error-prone. You'd need to convert to both 
+                        formats, count tokens for each, and compare.
+                    </p>
+                </div>
+
+                <div class="card">
+                    <h3>✨ The Solution</h3>
+                    <p>
+                        <strong>Token Optimizer</strong> does all of this automatically:
+                    </p>
+                    <ol style="margin-left: 2rem; color: var(--text-secondary);">
+                        <li>Converts your Java object to both JSON and TOON formats</li>
+                        <li>Counts tokens for each format (using generic estimation or model-specific tiktoken)</li>
+                        <li>Compares the results and returns the optimal format</li>
+                        <li>Provides detailed comparison information (token counts, savings, etc.)</li>
+                    </ol>
+                    <p style="margin-top: 1rem;">
+                        All in a single method call! 🚀
+                    </p>
+                </div>
+
+                <div class="feature-grid">
+                    <div class="feature-card">
+                        <div class="feature-icon">⚡</div>
+                        <h3>Automatic Decision</h3>
+                        <p>No need to manually compare formats. The library chooses the optimal one for you.</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">🎯</div>
+                        <h3>Accurate Counting</h3>
+                        <p>Supports both generic estimation and model-specific tiktoken for precise token counting.</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">💰</div>
+                        <h3>Cost Savings</h3>
+                        <p>Reduce API costs by automatically using the most token-efficient format.</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">✅</div>
+                        <h3>Spec Compliant</h3>
+                        <p>100% compliant with the official TOON specification v2.0, validated against the official library.</p>
+                    </div>
+                </div>
+            </section>
+
+            <section id="getting-started">
+                <h2>Getting Started</h2>
+
+                <section id="installation">
+                    <h3>Installation</h3>
+                    <p>Add the dependency to your <code>pom.xml</code>:</p>
+                    <pre><code class="language-xml">&lt;dependency&gt;
     &lt;groupId&gt;dev.sassine&lt;/groupId&gt;
     &lt;artifactId&gt;token-optimizer&lt;/artifactId&gt;
     &lt;version&gt;0.0.1-SNAPSHOT&lt;/version&gt;
 &lt;/dependency&gt;</code></pre>
-            </div>
 
-            <h3 style="margin-top: 2rem; margin-bottom: 1rem;">Basic Usage (Generic Estimation)</h3>
-            <div class="code-block">
-                <pre><code>import dev.sassine.tokenoptimizer.TokenOptimizer;
+                    <div class="alert alert-warning">
+                        <strong>⚠️ Note:</strong> The library is compiled with Java 24 but is compatible with Java 17+ projects.
+                    </div>
+                </section>
+
+                <section id="basic-usage">
+                    <h3>Basic Usage</h3>
+                    <p>The simplest way to use Token Optimizer:</p>
+                    <pre><code class="language-java">import dev.sassine.tokenoptimizer.TokenOptimizer;
 import dev.sassine.tokenoptimizer.OptimizationResult;
 import java.util.HashMap;
 import java.util.Map;
 
+// Create your data object
 Map&lt;String, Object&gt; person = new HashMap&lt;&gt;();
+person.put("name", "John");
+person.put("age", 30);
+person.put("city", "New York");
+
+// Optimize - automatically chooses JSON or TOON
+OptimizationResult result = TokenOptimizer.optimize(person);
+
+// Use the optimal format
+System.out.println("Optimal format: " + result.getOptimalFormat());
+System.out.println("Optimal content:\n" + result.getOptimalContent());
+System.out.println("Token savings: " + result.getTokenSavings() + " tokens");</code></pre>
+
+                    <div class="alert alert-success">
+                        <strong>✅ That's it!</strong> The library automatically compared both formats and returned the one with fewer tokens.
+                    </div>
+                </section>
+
+                <section id="token-counting">
+                    <h3>Token Counting Methods</h3>
+                    <p>Token Optimizer supports two methods for counting tokens:</p>
+
+                    <h4>1. Generic Estimation (Default)</h4>
+                    <p>
+                        Fast approximation that works for any LLM model. Uses a combination of character-based and 
+                        word-based estimation.
+                    </p>
+                    <pre><code class="language-java">// Uses generic estimation
+OptimizationResult result = TokenOptimizer.optimize(obj);</code></pre>
+
+                    <h4>2. Model-Specific Tiktoken</h4>
+                    <p>
+                        Accurate token counting using the actual tokenizer for specific models (GPT-4, GPT-3.5, Claude, etc.). 
+                        Requires the <code>jtokkit</code> library (already included as a dependency).
+                    </p>
+                    <pre><code class="language-java">import com.knuddels.jtokkit.api.ModelType;
+
+// Use GPT-4 tokenizer
+OptimizationResult result = TokenOptimizer.optimize(obj, ModelType.GPT_4);
+
+// Use GPT-3.5 Turbo
+OptimizationResult result2 = TokenOptimizer.optimize(obj, ModelType.GPT_3_5_TURBO);
+
+// Use Claude (uses GPT-4 encoding)
+OptimizationResult result3 = TokenOptimizer.optimize(obj, ModelType.GPT_4);</code></pre>
+
+                    <div class="alert alert-info">
+                        <strong>💡 Tip:</strong> Use tiktoken for production applications where accuracy matters. Use generic 
+                        estimation for quick prototyping or when you don't know the target model.
+                    </div>
+                </section>
+            </section>
+
+            <section id="api">
+                <h2>API Reference</h2>
+
+                <h3>TokenOptimizer Class</h3>
+                <p>Main utility class with static methods for optimization.</p>
+
+                <h4>Methods</h4>
+
+                <div class="card">
+                    <h4><code>optimize(Object obj)</code></h4>
+                    <p>Optimizes an object using generic token estimation.</p>
+                    <pre><code class="language-java">OptimizationResult result = TokenOptimizer.optimize(obj);</code></pre>
+                    <p><strong>Parameters:</strong></p>
+                    <ul style="margin-left: 2rem; color: var(--text-secondary);">
+                        <li><code>obj</code> - The object to optimize (cannot be null)</li>
+                    </ul>
+                    <p><strong>Returns:</strong> <code>OptimizationResult</code> with optimal format and comparison data</p>
+                </div>
+
+                <div class="card">
+                    <h4><code>optimize(Object obj, ModelType modelType)</code></h4>
+                    <p>Optimizes an object using model-specific tiktoken counting.</p>
+                    <pre><code class="language-java">OptimizationResult result = TokenOptimizer.optimize(obj, ModelType.GPT_4);</code></pre>
+                    <p><strong>Parameters:</strong></p>
+                    <ul style="margin-left: 2rem; color: var(--text-secondary);">
+                        <li><code>obj</code> - The object to optimize (cannot be null)</li>
+                        <li><code>modelType</code> - The tiktoken ModelType (null for generic estimation)</li>
+                    </ul>
+                    <p><strong>Returns:</strong> <code>OptimizationResult</code> with optimal format and comparison data</p>
+                </div>
+
+                <div class="card">
+                    <h4><code>optimizeFromJson(String jsonString)</code></h4>
+                    <p>Optimizes a JSON string using generic token estimation.</p>
+                    <pre><code class="language-java">OptimizationResult result = TokenOptimizer.optimizeFromJson(jsonString);</code></pre>
+                </div>
+
+                <div class="card">
+                    <h4><code>optimizeFromJson(String jsonString, ModelType modelType)</code></h4>
+                    <p>Optimizes a JSON string using model-specific tiktoken counting.</p>
+                    <pre><code class="language-java">OptimizationResult result = TokenOptimizer.optimizeFromJson(jsonString, ModelType.GPT_4);</code></pre>
+                </div>
+
+                <div class="card">
+                    <h4><code>getOptimizedContent(Object obj)</code></h4>
+                    <p>Returns only the optimized content string (without comparison data).</p>
+                    <pre><code class="language-java">String optimalContent = TokenOptimizer.getOptimizedContent(obj);</code></pre>
+                </div>
+
+                <h3>OptimizationResult Class</h3>
+                <p>Contains the optimization results and comparison data.</p>
+
+                <table class="comparison-table">
+                    <thead>
+                        <tr>
+                            <th>Method</th>
+                            <th>Return Type</th>
+                            <th>Description</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><code>getOptimalFormat()</code></td>
+                            <td><code>FormatType</code></td>
+                            <td>Returns JSON or TOON</td>
+                        </tr>
+                        <tr>
+                            <td><code>getOptimalContent()</code></td>
+                            <td><code>String</code></td>
+                            <td>Returns the optimal format content</td>
+                        </tr>
+                        <tr>
+                            <td><code>getOptimalTokenCount()</code></td>
+                            <td><code>int</code></td>
+                            <td>Token count of optimal format</td>
+                        </tr>
+                        <tr>
+                            <td><code>getJsonContent()</code></td>
+                            <td><code>String</code></td>
+                            <td>JSON representation</td>
+                        </tr>
+                        <tr>
+                            <td><code>getJsonTokenCount()</code></td>
+                            <td><code>int</code></td>
+                            <td>JSON token count</td>
+                        </tr>
+                        <tr>
+                            <td><code>getToonContent()</code></td>
+                            <td><code>String</code></td>
+                            <td>TOON representation</td>
+                        </tr>
+                        <tr>
+                            <td><code>getToonTokenCount()</code></td>
+                            <td><code>int</code></td>
+                            <td>TOON token count</td>
+                        </tr>
+                        <tr>
+                            <td><code>getTokenSavings()</code></td>
+                            <td><code>int</code></td>
+                            <td>Absolute token savings</td>
+                        </tr>
+                        <tr>
+                            <td><code>getTokenSavingsPercentage()</code></td>
+                            <td><code>double</code></td>
+                            <td>Percentage savings (0-100)</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </section>
+
+            <section id="examples">
+                <h2>Examples</h2>
+
+                <h3>Example 1: Simple Object</h3>
+                <pre><code class="language-java">Map&lt;String, Object&gt; person = new HashMap&lt;&gt;();
 person.put("name", "John");
 person.put("age", 30);
 person.put("city", "New York");
 
 OptimizationResult result = TokenOptimizer.optimize(person);
 
-System.out.println("Optimal format: " + result.getOptimalFormat());
-System.out.println("Token savings: " + result.getTokenSavings() + " tokens");</code></pre>
-            </div>
+// Result: JSON (15 tokens) vs TOON (12 tokens)
+// Optimal: TOON (saves 3 tokens, 20%)</code></pre>
 
-            <h3 style="margin-top: 2rem; margin-bottom: 1rem;">Model-Specific Counting (Tiktoken)</h3>
-            <div class="code-block">
-                <pre><code>import com.knuddels.jtokkit.api.ModelType;
+                <h3>Example 2: Complex Nested Structure</h3>
+                <pre><code class="language-java">String jsonString = """
+{
+  "blog": {
+    "posts": [
+      {
+        "id": "post-1",
+        "title": "Getting Started",
+        "author": "Jane Doe",
+        "tags": ["tutorial", "json"]
+      }
+    ]
+  }
+}
+""";
+
+OptimizationResult result = TokenOptimizer.optimizeFromJson(jsonString);
+
+// Result: JSON (195 tokens) vs TOON (145 tokens)
+// Optimal: TOON (saves 50 tokens, 25.64%)</code></pre>
+
+                <h3>Example 3: Using Tiktoken for GPT-4</h3>
+                <pre><code class="language-java">import com.knuddels.jtokkit.api.ModelType;
+
+Map&lt;String, Object&gt; data = /* your data */;
 
 // Use GPT-4 tokenizer for accurate counting
-OptimizationResult result = TokenOptimizer.optimize(person, ModelType.GPT_4);
+OptimizationResult result = TokenOptimizer.optimize(data, ModelType.GPT_4);
 
-// Or GPT-3.5 Turbo
-OptimizationResult result2 = TokenOptimizer.optimize(person, ModelType.GPT_3_5_TURBO);</code></pre>
-            </div>
-        </section>
+System.out.println("Optimal for GPT-4: " + result.getOptimalFormat());
+System.out.println("Tokens: " + result.getOptimalTokenCount());</code></pre>
+            </section>
 
-        <section id="benchmarks" class="comparison">
-            <div class="comparison-container">
-                <h2 class="section-title">Real-World Benchmarks</h2>
-                <p style="text-align: center; color: var(--text-light); margin-bottom: 2rem;">
-                    Based on actual test results from the library examples
-                </p>
-                
-                <div class="comparison-grid">
-                    <div class="format-card">
-                        <h3>Example 1: Simple Object</h3>
-                        <p><strong>JSON:</strong> 15 tokens</p>
-                        <p><strong>TOON:</strong> 12 tokens</p>
-                        <p style="color: var(--secondary); font-weight: 600; margin-top: 1rem;">
-                            ✅ TOON saves 3 tokens (20%)
-                        </p>
-                    </div>
-                    
-                    <div class="format-card winner">
-                        <h3>Example 2: Blog with Posts</h3>
-                        <p><strong>JSON:</strong> 195 tokens</p>
-                        <p><strong>TOON:</strong> 145 tokens</p>
-                        <p style="color: var(--secondary); font-weight: 600; margin-top: 1rem;">
-                            ✅ TOON saves 50 tokens (25.64%)
-                        </p>
-                    </div>
-                    
-                    <div class="format-card winner">
-                        <h3>Example 3: E-commerce Orders</h3>
-                        <p><strong>JSON:</strong> 977 tokens</p>
-                        <p><strong>TOON:</strong> 110 tokens</p>
-                        <p style="color: var(--secondary); font-weight: 600; margin-top: 1rem;">
-                            ✅ TOON saves 867 tokens (88.74%)
-                        </p>
-                    </div>
+            <section id="benchmarks">
+                <h2>Benchmarks</h2>
+                <p>Real-world test results from the library examples:</p>
+
+                <table class="comparison-table">
+                    <thead>
+                        <tr>
+                            <th>Example</th>
+                            <th>JSON Tokens</th>
+                            <th>TOON Tokens</th>
+                            <th>Savings</th>
+                            <th>Winner</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Simple Object</td>
+                            <td>15</td>
+                            <td>12</td>
+                            <td>3 tokens (20%)</td>
+                            <td><span class="badge badge-success">TOON</span></td>
+                        </tr>
+                        <tr>
+                            <td>Blog with Posts</td>
+                            <td>195</td>
+                            <td>145</td>
+                            <td>50 tokens (25.64%)</td>
+                            <td><span class="badge badge-success">TOON</span></td>
+                        </tr>
+                        <tr>
+                            <td>E-commerce Orders</td>
+                            <td>977</td>
+                            <td>110</td>
+                            <td>867 tokens (88.74%)</td>
+                            <td><span class="badge badge-success">TOON</span></td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <div class="alert alert-info">
+                    <strong>📊 Key Insight:</strong> TOON is most effective with uniform arrays of objects (like the e-commerce example). 
+                    For simple objects, the difference is smaller, but TOON still often wins.
                 </div>
-            </div>
-        </section>
-    </main>
+            </section>
 
-    <footer>
-        <div class="footer-links">
-            <a href="https://github.com/Sassine/token-optimizer" target="_blank">GitHub</a>
-            <a href="https://github.com/Sassine/token-optimizer/blob/main/README.md" target="_blank">Documentation</a>
-            <a href="https://github.com/toon-format/spec" target="_blank">TOON Specification</a>
-            <a href="https://github.com/Sassine/token-optimizer/blob/main/LICENSE" target="_blank">License</a>
+            <section id="toon-spec">
+                <h2>TOON Specification</h2>
+                <p>
+                    This library implements the <a href="https://github.com/toon-format/spec" target="_blank">official TOON specification v2.0</a> 
+                    and has been validated against the official TOON library.
+                </p>
+
+                <h3>Format Rules</h3>
+                <ul style="margin-left: 2rem; color: var(--text-secondary);">
+                    <li><strong>Simple Properties:</strong> <code>key: value</code></li>
+                    <li><strong>Nested Objects:</strong> Indented with 2 spaces per level</li>
+                    <li><strong>Arrays of Objects (Uniform):</strong> Compact format <code>[count]{prop1,prop2,prop3}:</code></li>
+                    <li><strong>Arrays of Objects (Non-uniform):</strong> Expanded format with <code>-</code> prefix</li>
+                    <li><strong>Simple Arrays:</strong> <code>[count]: value1,value2,value3</code></li>
+                </ul>
+
+                <p>
+                    For complete specification details, visit the 
+                    <a href="https://github.com/toon-format/spec/blob/main/SPEC.md" target="_blank">official TOON specification</a>.
+                </p>
+            </section>
+        </main>
+    </div>
+
+    <footer style="background: var(--bg-secondary); border-top: 1px solid var(--border); padding: 3rem 2rem; margin-top: 4rem;">
+        <div style="max-width: 1400px; margin: 0 auto; text-align: center;">
+            <div style="margin-bottom: 1.5rem;">
+                <p style="color: var(--text-secondary); margin-bottom: 0.5rem;">
+                    Released under the <a href="https://github.com/Sassine/token-optimizer/blob/main/LICENSE" target="_blank" style="color: var(--accent); text-decoration: none; font-weight: 600;">MIT License</a>
+                </p>
+                <p style="color: var(--text-tertiary); font-size: 0.875rem;">
+                    Copyright © 2025 <a href="https://github.com/Sassine" target="_blank" style="color: var(--accent); text-decoration: none;">Sassine</a>
+                </p>
+            </div>
+            <div style="display: flex; justify-content: center; gap: 2rem; flex-wrap: wrap; margin-top: 2rem; padding-top: 2rem; border-top: 1px solid var(--border);">
+                <a href="https://github.com/Sassine/token-optimizer" target="_blank" style="color: var(--text-secondary); text-decoration: none; transition: color 0.2s;">GitHub</a>
+                <a href="https://github.com/Sassine/token-optimizer/blob/main/README.md" target="_blank" style="color: var(--text-secondary); text-decoration: none; transition: color 0.2s;">Documentation</a>
+                <a href="https://github.com/toon-format/spec" target="_blank" style="color: var(--text-secondary); text-decoration: none; transition: color 0.2s;">TOON Specification</a>
+                <a href="https://github.com/Sassine/token-optimizer/blob/main/LICENSE" target="_blank" style="color: var(--text-secondary); text-decoration: none; transition: color 0.2s;">License</a>
+            </div>
+            <div style="margin-top: 1.5rem;">
+                <p style="color: var(--text-tertiary); font-size: 0.875rem;">
+                    Made with ❤️ for the Java and LLM community
+                </p>
+            </div>
         </div>
-        <p style="opacity: 0.7; margin-top: 1rem;">
-            Released under the MIT License.<br>
-            Copyright © 2025-PRESENT Sassine El-Asmar
-        </p>
     </footer>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-java.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-json.min.js"></script>
+    <script>
+        // Theme toggle
+        function toggleTheme() {
+            const html = document.documentElement;
+            const currentTheme = html.getAttribute('data-theme');
+            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+            html.setAttribute('data-theme', newTheme);
+            localStorage.setItem('theme', newTheme);
+            updateThemeIcon(newTheme);
+        }
+
+        function updateThemeIcon(theme) {
+            const icon = document.getElementById('theme-icon');
+            icon.textContent = theme === 'dark' ? '☀️' : '🌙';
+        }
+
+        // Initialize with dark theme
+        if (!localStorage.getItem('theme')) {
+            document.documentElement.setAttribute('data-theme', 'dark');
+            updateThemeIcon('dark');
+        }
+
+        // Load saved theme (default to dark)
+        const savedTheme = localStorage.getItem('theme') || 'dark';
+        document.documentElement.setAttribute('data-theme', savedTheme);
+        updateThemeIcon(savedTheme);
+
+        // Smooth scroll for anchor links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    // Update active link
+                    document.querySelectorAll('.sidebar a').forEach(a => a.classList.remove('active'));
+                    this.classList.add('active');
+                }
+            });
+        });
+
+        // Update active link on scroll
+        const sections = document.querySelectorAll('section[id]');
+        const sidebarLinks = document.querySelectorAll('.sidebar a[href^="#"]');
+
+        window.addEventListener('scroll', () => {
+            let current = '';
+            sections.forEach(section => {
+                const sectionTop = section.offsetTop;
+                const sectionHeight = section.clientHeight;
+                if (window.pageYOffset >= sectionTop - 200) {
+                    current = section.getAttribute('id');
+                }
+            });
+
+            sidebarLinks.forEach(link => {
+                link.classList.remove('active');
+                if (link.getAttribute('href') === `#${current}`) {
+                    link.classList.add('active');
+                }
+            });
+        });
+    </script>
 </body>
 </html>
-
