@@ -10,7 +10,7 @@ Java library to optimize payload format by comparing JSON vs TOON and automatica
 
 ## 📦 Latest Release
 
-**Current Version:** `1.1.0`  
+**Current Version:** `1.1.1`  
 **Status:** ✅ Published to [Maven Central](https://central.sonatype.com/artifact/dev.sassine/token-optimizer)  
 **Release Date:** November 2025
 
@@ -65,7 +65,7 @@ Add the dependency to your `pom.xml`:
 <dependency>
     <groupId>dev.sassine</groupId>
     <artifactId>token-optimizer</artifactId>
-    <version>1.1.0</version>
+    <version>1.1.1</version>
 </dependency>
 ```
 

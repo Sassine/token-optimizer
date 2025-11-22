@@ -4,7 +4,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>dev.sassine</groupId>
 	<artifactId>token-optimizer</artifactId>
-	<version>1.1.0</version>
+	<version>1.1.1</version>
 	<name>token-optimizer</name>
 	<description>Library to optimize payload format for minimum token consumption</description>
 	<url>https://github.com/Sassine/token-optimizer</url>
