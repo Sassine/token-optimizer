@@ -10,7 +10,7 @@ Java library to optimize payload format by comparing JSON vs TOON and automatica
 
 ## 📦 Latest Release
 
-**Current Version:** `1.0.0`  
+**Current Version:** `1.1.0`  
 **Status:** ✅ Published to [Maven Central](https://central.sonatype.com/artifact/dev.sassine/token-optimizer)  
 **Release Date:** November 2025
 
@@ -30,6 +30,9 @@ This library implements the [official TOON specification v2.0](https://github.co
   - Generic estimation algorithm (fast, works for any model)
   - **Tiktoken integration** (accurate, model-specific counting for GPT, Claude, etc.)
 - ✅ Automatically returns the format with the lowest token count
+- ✅ **Optimization Policy** - Control format selection with configurable thresholds
+- ✅ **Multiple metrics** - Token count, character count, and byte count for comprehensive analysis
+- ✅ **Reverse conversion** - Convert TOON strings back to JSON or Java objects
 - ✅ Supports simple and complex objects (nested, arrays, etc.)
 - ✅ Compiled with Java 24, compatible with Java 11+ projects
 - ✅ **100% compliant with official TOON specification v2.0**
@@ -61,7 +64,7 @@ Add the dependency to your `pom.xml`:
 <dependency>
     <groupId>dev.sassine</groupId>
     <artifactId>token-optimizer</artifactId>
-    <version>1.0.0</version>
+    <version>1.1.0</version>
 </dependency>
 ```
 
@@ -152,6 +155,69 @@ String jsonString = """
 
 OptimizationResult result = TokenOptimizer.optimizeFromJson(jsonString);
 String optimizedContent = result.getOptimalContent();
+```
+
+### Optimization Policy
+
+Control how the optimizer selects formats using `OptimizationPolicy`:
+
+```java
+import dev.sassine.tokenoptimizer.OptimizationPolicy;
+import dev.sassine.tokenoptimizer.PayloadFormat;
+
+// Create a policy
+OptimizationPolicy policy = OptimizationPolicy.builder()
+    .preferFormat(PayloadFormat.AUTO)              // AUTO, JSON_ONLY, or TOON_ONLY
+    .minSavingsPercentForSwitch(5.0)               // Only switch if savings ≥ 5%
+    .build();
+
+// Use the policy
+OptimizationResult result = TokenOptimizer.optimize(person, policy);
+
+// Policy options:
+// - PayloadFormat.AUTO: Choose format with lowest tokens (respects threshold)
+// - PayloadFormat.JSON_ONLY: Always use JSON
+// - PayloadFormat.TOON_ONLY: Always use TOON
+```
+
+### Multiple Metrics
+
+Get comprehensive metrics for both LLM usage and data persistence:
+
+```java
+OptimizationResult result = TokenOptimizer.optimize(person);
+
+// Token metrics (for LLM usage)
+int tokens = result.getOptimalTokenCount();
+double tokenSavings = result.getTokenSavingsPercentage();
+
+// Character metrics (for size analysis)
+int chars = result.getOptimalCharacterCount();
+double charSavings = result.getCharacterSavingsPercentage();
+
+// Byte metrics (for data persistence)
+int bytes = result.getOptimalByteCount();
+double byteSavings = result.getByteSavingsPercentage();
+
+System.out.println(result); // Shows all metrics
+```
+
+### Reverse Conversion (TOON → JSON/Object)
+
+Convert TOON strings back to JSON or Java objects:
+
+```java
+// TOON → JSON
+String toonString = "name: John\nage: 30";
+String json = TokenOptimizer.fromToonToJson(toonString);
+// Result: {"name":"John","age":30}
+
+// TOON → Object
+Object obj = TokenOptimizer.fromToon(toonString);
+// Result: Map with name="John", age=30
+
+// TOON → Typed Class
+MyClass obj = TokenOptimizer.fromToon(toonString, MyClass.class);
 ```
 
 ## 📊 Real Test Results

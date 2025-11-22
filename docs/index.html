@@ -536,6 +536,9 @@
                 <li><a href="#installation">Installation</a></li>
                 <li><a href="#basic-usage">Basic Usage</a></li>
                 <li><a href="#token-counting">Token Counting</a></li>
+                <li><a href="#optimization-policy">Optimization Policy</a></li>
+                <li><a href="#multiple-metrics">Multiple Metrics</a></li>
+                <li><a href="#reverse-conversion">Reverse Conversion</a></li>
                 <li><a href="#api">API Reference</a></li>
                 <li><a href="#examples">Examples</a></li>
                 <li><a href="#benchmarks">Benchmarks</a></li>
@@ -558,7 +561,7 @@
                     <a href="https://github.com/Sassine/token-optimizer/releases" target="_blank" style="display: inline-block;">
                         <img src="https://img.shields.io/github/v/release/Sassine/token-optimizer" alt="Latest Release" style="height: 20px;">
                     </a>
-                    <span style="color: var(--text-secondary); font-size: 0.9rem;">v1.0.0</span>
+                    <span style="color: var(--text-secondary); font-size: 0.9rem;">v1.1.0</span>
                 </div>
                 <div style="margin-top: 2rem;">
                     <a href="#getting-started" class="btn">Get Started</a>
@@ -717,7 +720,7 @@
                     <pre><code class="language-xml">&lt;dependency&gt;
     &lt;groupId&gt;dev.sassine&lt;/groupId&gt;
     &lt;artifactId&gt;token-optimizer&lt;/artifactId&gt;
-    &lt;version&gt;1.0.0&lt;/version&gt;
+    &lt;version&gt;1.1.0&lt;/version&gt;
 &lt;/dependency&gt;</code></pre>
 
                     <div style="margin-top: 1rem; padding: 1rem; background: var(--bg-secondary); border-radius: 8px; border-left: 4px solid var(--accent);">
@@ -728,7 +731,7 @@
                             </a>
                         </p>
                         <p style="margin: 0.5rem 0 0 0; font-size: 0.9rem; color: var(--text-secondary);">
-                            Latest version: <strong>1.0.0</strong> | 
+                            Latest version: <strong>1.1.0</strong> | 
                             <a href="https://github.com/Sassine/token-optimizer/releases" target="_blank" style="color: var(--accent);">View all releases</a>
                         </p>
                     </div>
@@ -798,6 +801,91 @@ OptimizationResult result3 = TokenOptimizer.optimize(obj, ModelType.GPT_4);</cod
                         estimation for quick prototyping or when you don't know the target model.
                     </div>
                 </section>
+
+                <section id="optimization-policy">
+                    <h3>Optimization Policy</h3>
+                    <p>
+                        Control how the optimizer selects formats using <code>OptimizationPolicy</code>. This allows you to 
+                        set minimum savings thresholds or force a specific format.
+                    </p>
+                    <pre><code class="language-java">import dev.sassine.tokenoptimizer.OptimizationPolicy;
+import dev.sassine.tokenoptimizer.PayloadFormat;
+
+// Create a policy with 5% minimum savings threshold
+OptimizationPolicy policy = OptimizationPolicy.builder()
+    .preferFormat(PayloadFormat.AUTO)              // AUTO, JSON_ONLY, or TOON_ONLY
+    .minSavingsPercentForSwitch(5.0)               // Only switch if savings ≥ 5%
+    .build();
+
+// Use the policy
+OptimizationResult result = TokenOptimizer.optimize(person, policy);
+
+// Policy options:
+// - PayloadFormat.AUTO: Choose format with lowest tokens (respects threshold)
+// - PayloadFormat.JSON_ONLY: Always use JSON
+// - PayloadFormat.TOON_ONLY: Always use TOON</code></pre>
+
+                    <div class="alert alert-info">
+                        <strong>💡 Use Case:</strong> Use a minimum savings threshold to avoid switching formats for marginal 
+                        improvements, which can help maintain consistency in your application.
+                    </div>
+                </section>
+
+                <section id="multiple-metrics">
+                    <h3>Multiple Metrics</h3>
+                    <p>
+                        Get comprehensive metrics for both LLM usage (tokens) and data persistence (characters, bytes):
+                    </p>
+                    <pre><code class="language-java">OptimizationResult result = TokenOptimizer.optimize(person);
+
+// Token metrics (for LLM usage)
+int tokens = result.getOptimalTokenCount();
+double tokenSavings = result.getTokenSavingsPercentage();
+
+// Character metrics (for size analysis)
+int chars = result.getOptimalCharacterCount();
+double charSavings = result.getCharacterSavingsPercentage();
+
+// Byte metrics (for data persistence/storage)
+int bytes = result.getOptimalByteCount();
+double byteSavings = result.getByteSavingsPercentage();
+
+// Print all metrics
+System.out.println(result);
+// Output: OptimizationResult{optimalFormat=TOON, tokens=110/977/110 (savings: 867, 88.74%), 
+//          chars=450/3200/450 (savings: 2750, 85.94%), bytes=450/3200/450 (savings: 2750, 85.94%)}</code></pre>
+
+                    <div class="alert alert-success">
+                        <strong>✅ Benefit:</strong> Evaluate optimization impact for both API costs (tokens) and storage costs (bytes).
+                    </div>
+                </section>
+
+                <section id="reverse-conversion">
+                    <h3>Reverse Conversion (TOON → JSON/Object)</h3>
+                    <p>
+                        Convert TOON strings back to JSON or Java objects:
+                    </p>
+                    <pre><code class="language-java">// TOON → JSON
+String toonString = "name: John\nage: 30";
+String json = TokenOptimizer.fromToonToJson(toonString);
+// Result: {"name":"John","age":30}
+
+// TOON → Object
+Object obj = TokenOptimizer.fromToon(toonString);
+// Result: Map with name="John", age=30
+
+// TOON → Typed Class
+MyClass obj = TokenOptimizer.fromToon(toonString, MyClass.class);
+
+// Using ToonConverter directly
+String json = ToonConverter.toJson(toonString);
+Object obj = ToonConverter.fromToon(toonString);</code></pre>
+
+                    <div class="alert alert-info">
+                        <strong>💡 Use Case:</strong> Useful when receiving TOON data from external sources or when you need to 
+                        convert TOON back to standard formats for processing.
+                    </div>
+                </section>
             </section>
 
             <section id="api">
@@ -847,6 +935,45 @@ OptimizationResult result3 = TokenOptimizer.optimize(obj, ModelType.GPT_4);</cod
                     <h4><code>getOptimizedContent(Object obj)</code></h4>
                     <p>Returns only the optimized content string (without comparison data).</p>
                     <pre><code class="language-java">String optimalContent = TokenOptimizer.getOptimizedContent(obj);</code></pre>
+                </div>
+
+                <div class="card">
+                    <h4><code>optimize(Object obj, OptimizationPolicy policy)</code></h4>
+                    <p>Optimizes an object using the specified optimization policy.</p>
+                    <pre><code class="language-java">OptimizationPolicy policy = OptimizationPolicy.builder()
+    .preferFormat(PayloadFormat.AUTO)
+    .minSavingsPercentForSwitch(5.0)
+    .build();
+OptimizationResult result = TokenOptimizer.optimize(obj, policy);</code></pre>
+                </div>
+
+                <div class="card">
+                    <h4><code>fromToonToJson(String toonString)</code></h4>
+                    <p>Converts a TOON string to JSON format.</p>
+                    <pre><code class="language-java">String json = TokenOptimizer.fromToonToJson(toonString);</code></pre>
+                </div>
+
+                <div class="card">
+                    <h4><code>fromToon(String toonString)</code></h4>
+                    <p>Converts a TOON string to an Object (Map/List structure).</p>
+                    <pre><code class="language-java">Object obj = TokenOptimizer.fromToon(toonString);</code></pre>
+                </div>
+
+                <div class="card">
+                    <h4><code>fromToon(String toonString, Class&lt;T&gt; clazz)</code></h4>
+                    <p>Converts a TOON string to a specific class type.</p>
+                    <pre><code class="language-java">MyClass obj = TokenOptimizer.fromToon(toonString, MyClass.class);</code></pre>
+                </div>
+
+                <h3>OptimizationPolicy Class</h3>
+                <p>Configuration class for controlling optimization behavior.</p>
+
+                <div class="card">
+                    <h4>Builder Pattern</h4>
+                    <pre><code class="language-java">OptimizationPolicy policy = OptimizationPolicy.builder()
+    .preferFormat(PayloadFormat.AUTO)              // AUTO, JSON_ONLY, TOON_ONLY
+    .minSavingsPercentForSwitch(5.0)               // Minimum savings % to switch
+    .build();</code></pre>
                 </div>
 
                 <h3>OptimizationResult Class</h3>
