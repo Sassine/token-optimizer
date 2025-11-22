@@ -1017,6 +1017,18 @@ OptimizationResult result = TokenOptimizer.optimize(obj, policy);</code></pre>
                     <pre><code class="language-java">MyClass obj = TokenOptimizer.fromToon(toonString, MyClass.class);</code></pre>
                 </div>
 
+                <h3>OptimizationCriteria Enum</h3>
+                <p>Enum representing the criteria used for optimization comparison.</p>
+
+                <div class="card">
+                    <h4>Values</h4>
+                    <ul style="margin-left: 2rem; color: var(--text-secondary);">
+                        <li><code>TOKENS</code> - Compare by token count (default, for LLM usage)</li>
+                        <li><code>BYTES</code> - Compare by byte count (for data persistence/storage)</li>
+                        <li><code>CHARACTERS</code> - Compare by character count (for size analysis)</li>
+                    </ul>
+                </div>
+
                 <h3>OptimizationPolicy Class</h3>
                 <p>Configuration class for controlling optimization behavior.</p>
 
