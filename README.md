@@ -30,6 +30,7 @@ This library implements the [official TOON specification v2.0](https://github.co
   - Generic estimation algorithm (fast, works for any model)
   - **Tiktoken integration** (accurate, model-specific counting for GPT, Claude, etc.)
 - ✅ Automatically returns the format with the lowest token count
+- ✅ **Multiple optimization criteria** - Optimize by tokens (LLMs), bytes (storage), or characters (size analysis)
 - ✅ **Optimization Policy** - Control format selection with configurable thresholds
 - ✅ **Multiple metrics** - Token count, character count, and byte count for comprehensive analysis
 - ✅ **Reverse conversion** - Convert TOON strings back to JSON or Java objects
@@ -156,6 +157,27 @@ String jsonString = """
 OptimizationResult result = TokenOptimizer.optimizeFromJson(jsonString);
 String optimizedContent = result.getOptimalContent();
 ```
+
+### Optimization Criteria
+
+Choose what metric to optimize for: tokens, bytes, or characters:
+
+```java
+// Optimize by tokens (default - for LLM usage)
+OptimizationResult byTokens = TokenOptimizer.optimize(person);
+
+// Optimize by bytes (for data persistence/storage)
+OptimizationResult byBytes = TokenOptimizer.optimizeByBytes(person);
+
+// Optimize by characters (for size analysis)
+OptimizationResult byChars = TokenOptimizer.optimizeByCharacters(person);
+
+// From JSON string
+OptimizationResult byBytes = TokenOptimizer.optimizeFromJsonByBytes(jsonString);
+OptimizationResult byChars = TokenOptimizer.optimizeFromJsonByCharacters(jsonString);
+```
+
+**Note:** Different criteria can produce different optimal formats! Tokens are best for LLM costs, bytes for storage, and characters for size analysis.
 
 ### Optimization Policy
 
