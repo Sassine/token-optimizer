@@ -506,4 +506,583 @@ public final class ToonConverter {
         }
         return list;
     }
+    
+    /**
+     * Converts a TOON string to a JSON string.
+     * 
+     * @param toonString The TOON string to be converted
+     * @return String in JSON format
+     * @throws IllegalArgumentException if toonString is null or empty
+     * @throws RuntimeException if conversion fails
+     */
+    public static String toJson(final String toonString) {
+        if (toonString == null) {
+            throw new IllegalArgumentException("TOON string cannot be null");
+        }
+        
+        final String trimmed = toonString.trim();
+        if (trimmed.isEmpty()) {
+            throw new IllegalArgumentException("TOON string cannot be empty");
+        }
+        
+        try {
+            final Object obj = fromToon(trimmed);
+            return OBJECT_MAPPER.writeValueAsString(obj);
+        } catch (Exception e) {
+            throw new RuntimeException("Error converting TOON to JSON: " + e.getMessage(), e);
+        }
+    }
+    
+    /**
+     * Converts a TOON string to an Object (Map/List structure).
+     * 
+     * @param toonString The TOON string to be converted
+     * @return Object (typically Map or List) representing the TOON data
+     * @throws IllegalArgumentException if toonString is null or empty
+     * @throws RuntimeException if conversion fails
+     */
+    public static Object fromToon(final String toonString) {
+        if (toonString == null) {
+            throw new IllegalArgumentException("TOON string cannot be null");
+        }
+        
+        final String trimmed = toonString.trim();
+        if (trimmed.isEmpty()) {
+            throw new IllegalArgumentException("TOON string cannot be empty");
+        }
+        
+        try {
+            final ToonParser parser = new ToonParser(trimmed);
+            return parser.parse();
+        } catch (Exception e) {
+            throw new RuntimeException("Error parsing TOON: " + e.getMessage(), e);
+        }
+    }
+    
+    /**
+     * Internal parser class for converting TOON strings to objects.
+     */
+    private static final class ToonParser {
+        private final String toon;
+        private int pos;
+        private final int length;
+        
+        ToonParser(final String toon) {
+            this.toon = toon;
+            this.pos = 0;
+            this.length = toon.length();
+        }
+        
+        /**
+         * Main parse method that returns the root object.
+         */
+        Object parse() {
+            skipWhitespace();
+            if (pos >= length) {
+                return new java.util.HashMap<String, Object>();
+            }
+            
+            // Check if it starts with an array indicator
+            if (peek() == ARRAY_START) {
+                return parseArray();
+            }
+            
+            // Otherwise parse as object
+            return parseObject("");
+        }
+        
+        /**
+         * Parses a TOON object (key-value pairs with indentation).
+         */
+        @SuppressWarnings("unchecked")
+        private Map<String, Object> parseObject(final String baseIndent) {
+            final Map<String, Object> map = new java.util.HashMap<>();
+            
+            while (pos < length) {
+                skipWhitespace();
+                if (pos >= length) {
+                    break;
+                }
+                
+                // Check if we've moved to a different indentation level (end of this object)
+                final String currentIndent = getCurrentIndent();
+                if (!currentIndent.startsWith(baseIndent) || currentIndent.length() < baseIndent.length()) {
+                    break;
+                }
+                
+                // Check for array item marker (-)
+                if (peek() == '-') {
+                    // This is an array item, not a property - should not happen at object level
+                    break;
+                }
+                
+                // Parse key
+                final String key = parseKey();
+                if (key == null || key.isEmpty()) {
+                    break;
+                }
+                
+                skipWhitespace();
+                
+                // Check for array notation: key[count] or key[count]{...}
+                if (peek() == ARRAY_START) {
+                    final Object arrayValue = parseArrayValue(key, currentIndent);
+                    map.put(key, arrayValue);
+                } else if (peek() == COLON) {
+                    // Regular key: value
+                    pos++; // consume ':'
+                    skipWhitespace();
+                    final Object value = parseValue(currentIndent);
+                    map.put(key, value);
+                } else {
+                    // No separator, might be end of line
+                    break;
+                }
+                
+                // Skip to next line
+                skipToNextLine();
+            }
+            
+            return map;
+        }
+        
+        /**
+         * Parses an array value (handles both simple arrays and arrays of objects).
+         */
+        private Object parseArrayValue(final String key, final String indent) {
+            // Parse [count] or [count]{prop1,prop2,prop3}
+            pos++; // consume '['
+            final int count = parseInt();
+            if (peek() != ARRAY_END) {
+                throw new RuntimeException("Expected ']' after array count at position " + pos);
+            }
+            pos++; // consume ']'
+            
+            // Check for compact format: {prop1,prop2,prop3}
+            List<String> schemaKeys = null;
+            if (peek() == OBJECT_START) {
+                pos++; // consume '{'
+                schemaKeys = parseSchemaKeys();
+                if (peek() != OBJECT_END) {
+                    throw new RuntimeException("Expected '}' after schema keys at position " + pos);
+                }
+                pos++; // consume '}'
+            }
+            
+            skipWhitespace();
+            
+            // Check for ':'
+            if (peek() == COLON) {
+                pos++; // consume ':'
+                skipWhitespace();
+            }
+            
+            // Skip to next line
+            skipToNextLine();
+            
+            if (count == 0) {
+                return new ArrayList<>();
+            }
+            
+            // Determine array type
+            if (schemaKeys != null) {
+                // Compact format: array of objects with uniform structure
+                return parseCompactArrayOfObjects(count, schemaKeys, indent);
+            } else {
+                // Check if it's a simple array or expanded array of objects
+                final String nextLineIndent = getCurrentIndent();
+                if (nextLineIndent.length() > indent.length() && peek() == '-') {
+                    // Expanded format: array of objects
+                    return parseExpandedArrayOfObjects(count, nextLineIndent);
+                } else {
+                    // Simple array: [count]: value1,value2,value3
+                    return parseSimpleArray();
+                }
+            }
+        }
+        
+        /**
+         * Parses a compact array of objects (uniform structure).
+         */
+        private List<Map<String, Object>> parseCompactArrayOfObjects(
+                final int count, final List<String> schemaKeys, final String baseIndent) {
+            final List<Map<String, Object>> list = new ArrayList<>();
+            
+            for (int i = 0; i < count; i++) {
+                skipWhitespace();
+                final String lineIndent = getCurrentIndent();
+                if (lineIndent.length() <= baseIndent.length()) {
+                    break; // Moved back to parent level
+                }
+                
+                final Map<String, Object> item = new java.util.HashMap<>();
+                final String[] values = parseCommaSeparatedValues();
+                
+                if (values.length != schemaKeys.size()) {
+                    throw new RuntimeException(
+                        String.format("Expected %d values but got %d at line %d", 
+                            schemaKeys.size(), values.length, i + 1));
+                }
+                
+                for (int j = 0; j < schemaKeys.size(); j++) {
+                    item.put(schemaKeys.get(j), parseValueFromString(values[j]));
+                }
+                
+                list.add(item);
+                skipToNextLine();
+            }
+            
+            return list;
+        }
+        
+        /**
+         * Parses an expanded array of objects (non-uniform structure).
+         */
+        private List<Map<String, Object>> parseExpandedArrayOfObjects(
+                final int count, final String itemIndent) {
+            final List<Map<String, Object>> list = new ArrayList<>();
+            
+            for (int i = 0; i < count; i++) {
+                skipWhitespace();
+                final String currentIndent = getCurrentIndent();
+                if (currentIndent.length() < itemIndent.length()) {
+                    break; // Moved back to parent level
+                }
+                
+                // Expect '-' marker
+                if (peek() != '-') {
+                    break;
+                }
+                pos++; // consume '-'
+                skipWhitespace();
+                
+                // Parse object properties
+                final Map<String, Object> item = parseObject(itemIndent);
+                list.add(item);
+                
+                skipToNextLine();
+            }
+            
+            return list;
+        }
+        
+        /**
+         * Parses a simple array: value1,value2,value3.
+         */
+        private List<Object> parseSimpleArray() {
+            final List<Object> list = new ArrayList<>();
+            
+            skipWhitespace();
+            if (pos >= length || peek() == '\n' || peek() == '\r') {
+                return list; // Empty array
+            }
+            
+            final String[] values = parseCommaSeparatedValues();
+            for (final String value : values) {
+                list.add(parseValueFromString(value));
+            }
+            
+            return list;
+        }
+        
+        /**
+         * Parses comma-separated values from current position.
+         */
+        private String[] parseCommaSeparatedValues() {
+            final List<String> values = new ArrayList<>();
+            final StringBuilder current = new StringBuilder();
+            boolean inQuotes = false;
+            
+            while (pos < length) {
+                final char c = peek();
+                
+                if (c == '"' && (pos == 0 || toon.charAt(pos - 1) != '\\')) {
+                    inQuotes = !inQuotes;
+                    current.append(c);
+                    pos++;
+                } else if (c == COMMA && !inQuotes) {
+                    if (current.length() > 0) {
+                        values.add(current.toString().trim());
+                        current.setLength(0);
+                    }
+                    pos++;
+                    skipWhitespace();
+                } else if ((c == '\n' || c == '\r') && !inQuotes) {
+                    break;
+                } else {
+                    current.append(c);
+                    pos++;
+                }
+            }
+            
+            if (current.length() > 0) {
+                values.add(current.toString().trim());
+            }
+            
+            return values.toArray(new String[0]);
+        }
+        
+        /**
+         * Parses schema keys from {prop1,prop2,prop3}.
+         */
+        private List<String> parseSchemaKeys() {
+            final List<String> keys = new ArrayList<>();
+            final StringBuilder current = new StringBuilder();
+            
+            while (pos < length) {
+                final char c = peek();
+                if (c == OBJECT_END) {
+                    if (current.length() > 0) {
+                        keys.add(current.toString().trim());
+                    }
+                    break;
+                } else if (c == COMMA) {
+                    if (current.length() > 0) {
+                        keys.add(current.toString().trim());
+                        current.setLength(0);
+                    }
+                    pos++;
+                } else {
+                    current.append(c);
+                    pos++;
+                }
+            }
+            
+            return keys;
+        }
+        
+        /**
+         * Parses a value (can be primitive, object, or array).
+         */
+        private Object parseValue(final String currentIndent) {
+            skipWhitespace();
+            
+            if (pos >= length) {
+                return null;
+            }
+            
+            final char c = peek();
+            
+            if (c == ARRAY_START) {
+                return parseArray();
+            } else if (c == '\n' || c == '\r') {
+                // Value on next line - might be nested object
+                skipToNextLine();
+                final String nextIndent = getCurrentIndent();
+                if (nextIndent.length() > currentIndent.length()) {
+                    return parseObject(currentIndent);
+                }
+                return null;
+            } else {
+                // Primitive value on same line
+                return parsePrimitiveValue();
+            }
+        }
+        
+        /**
+         * Parses an array (simple or of objects).
+         */
+        private Object parseArray() {
+            pos++; // consume '['
+            final int count = parseInt();
+            if (peek() != ARRAY_END) {
+                throw new RuntimeException("Expected ']' after array count");
+            }
+            pos++; // consume ']'
+            
+            skipWhitespace();
+            if (peek() == COLON) {
+                pos++; // consume ':'
+                skipWhitespace();
+            }
+            
+            skipToNextLine();
+            
+            if (count == 0) {
+                return new ArrayList<>();
+            }
+            
+            // Check if it's an array of objects by looking at next line
+            final String nextIndent = getCurrentIndent();
+            if (nextIndent.length() > 0 && peek() == '-') {
+                // Expanded array of objects
+                return parseExpandedArrayOfObjects(count, nextIndent);
+            } else {
+                // Simple array
+                return parseSimpleArray();
+            }
+        }
+        
+        /**
+         * Parses a primitive value from string.
+         */
+        private Object parseValueFromString(final String str) {
+            if (str == null || str.isEmpty()) {
+                return null;
+            }
+            
+            final String trimmed = str.trim();
+            
+            if (trimmed.equals(TOON_NULL)) {
+                return null;
+            }
+            
+            // Remove quotes if present
+            String unquoted = trimmed;
+            if (trimmed.startsWith(QUOTE) && trimmed.endsWith(QUOTE) && trimmed.length() >= 2) {
+                unquoted = trimmed.substring(1, trimmed.length() - 1);
+            }
+            
+            // Try to parse as number
+            try {
+                if (unquoted.contains(".")) {
+                    return Double.parseDouble(unquoted);
+                } else {
+                    return Long.parseLong(unquoted);
+                }
+            } catch (NumberFormatException e) {
+                // Not a number
+            }
+            
+            // Try boolean
+            if (unquoted.equalsIgnoreCase("true")) {
+                return true;
+            }
+            if (unquoted.equalsIgnoreCase("false")) {
+                return false;
+            }
+            
+            // String
+            return unquoted;
+        }
+        
+        /**
+         * Parses a primitive value from current position.
+         */
+        private Object parsePrimitiveValue() {
+            final StringBuilder sb = new StringBuilder();
+            
+            while (pos < length) {
+                final char c = peek();
+                if (c == '\n' || c == '\r' || c == COMMA) {
+                    break;
+                }
+                sb.append(c);
+                pos++;
+            }
+            
+            return parseValueFromString(sb.toString());
+        }
+        
+        /**
+         * Parses a key (property name).
+         */
+        private String parseKey() {
+            final StringBuilder sb = new StringBuilder();
+            
+            while (pos < length) {
+                final char c = peek();
+                if (c == COLON || c == ARRAY_START || c == '\n' || c == '\r') {
+                    break;
+                }
+                sb.append(c);
+                pos++;
+            }
+            
+            return sb.toString().trim();
+        }
+        
+        /**
+         * Parses an integer from current position.
+         */
+        private int parseInt() {
+            final StringBuilder sb = new StringBuilder();
+            
+            while (pos < length) {
+                final char c = peek();
+                if (Character.isDigit(c)) {
+                    sb.append(c);
+                    pos++;
+                } else {
+                    break;
+                }
+            }
+            
+            if (sb.length() == 0) {
+                throw new RuntimeException("Expected integer at position " + pos);
+            }
+            
+            return Integer.parseInt(sb.toString());
+        }
+        
+        /**
+         * Gets the current indentation level.
+         */
+        private String getCurrentIndent() {
+            final int startPos = pos;
+            final StringBuilder indent = new StringBuilder();
+            
+            while (pos < length) {
+                final char c = peek();
+                if (c == ' ') {
+                    indent.append(c);
+                    pos++;
+                } else if (c == '\t') {
+                    indent.append("  "); // Convert tab to 2 spaces
+                    pos++;
+                } else {
+                    break;
+                }
+            }
+            
+            final String result = indent.toString();
+            pos = startPos; // Reset position
+            return result;
+        }
+        
+        /**
+         * Skips whitespace (spaces and tabs, but not newlines).
+         */
+        private void skipWhitespace() {
+            while (pos < length) {
+                final char c = peek();
+                if (c == ' ' || c == '\t') {
+                    pos++;
+                } else {
+                    break;
+                }
+            }
+        }
+        
+        /**
+         * Skips to the next line.
+         */
+        private void skipToNextLine() {
+            while (pos < length) {
+                final char c = peek();
+                if (c == '\n') {
+                    pos++;
+                    break;
+                } else if (c == '\r') {
+                    pos++;
+                    if (pos < length && peek() == '\n') {
+                        pos++;
+                    }
+                    break;
+                } else {
+                    pos++;
+                }
+            }
+        }
+        
+        /**
+         * Peeks at the current character without advancing.
+         */
+        private char peek() {
+            if (pos >= length) {
+                return '\0';
+            }
+            return toon.charAt(pos);
+        }
+    }
 }

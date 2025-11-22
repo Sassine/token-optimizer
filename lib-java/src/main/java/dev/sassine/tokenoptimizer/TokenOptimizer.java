@@ -404,5 +404,54 @@ public final class TokenOptimizer {
         final OptimizationResult result = optimizeFromJson(jsonString, modelType, policy);
         return result.getOptimalContent();
     }
+    
+    /**
+     * Converts a TOON string to a JSON string.
+     * 
+     * @param toonString The TOON string to be converted
+     * @return String in JSON format
+     * @throws IllegalArgumentException if toonString is null or empty
+     * @throws RuntimeException if conversion fails
+     */
+    public static String fromToonToJson(final String toonString) {
+        return ToonConverter.toJson(toonString);
+    }
+    
+    /**
+     * Converts a TOON string to an Object (Map/List structure).
+     * 
+     * @param toonString The TOON string to be converted
+     * @return Object (typically Map or List) representing the TOON data
+     * @throws IllegalArgumentException if toonString is null or empty
+     * @throws RuntimeException if conversion fails
+     */
+    public static Object fromToon(final String toonString) {
+        return ToonConverter.fromToon(toonString);
+    }
+    
+    /**
+     * Converts a TOON string to a specific class type.
+     * 
+     * @param <T> The target type
+     * @param toonString The TOON string to be converted
+     * @param clazz The target class
+     * @return Object of the specified type
+     * @throws IllegalArgumentException if toonString is null or empty, or clazz is null
+     * @throws RuntimeException if conversion fails
+     */
+    public static <T> T fromToon(final String toonString, final Class<T> clazz) {
+        if (clazz == null) {
+            throw new IllegalArgumentException("Class cannot be null");
+        }
+        
+        try {
+            final Object obj = ToonConverter.fromToon(toonString);
+            return OBJECT_MAPPER.convertValue(obj, clazz);
+        } catch (IllegalArgumentException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new RuntimeException("Error converting TOON to " + clazz.getSimpleName() + ": " + e.getMessage(), e);
+        }
+    }
 }
 
