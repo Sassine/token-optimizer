@@ -162,6 +162,30 @@ GITHUB_SETUP.md
 .gitattributes
 
 # ============================================
+# Temporary Documentation and Scripts
+# ============================================
+# Maven Central setup docs (temporary)
+FINAL_STEPS.md
+GITHUB_SECRETS_INSTRUCTIONS.md
+MAVEN_CENTRAL_GUIDE.md
+MAVEN_CENTRAL_SETUP.md
+OSSRH_CREDENTIALS_INFO.md
+PR_DESCRIPTION.md
+PUBLISH_INSTRUCTIONS.md
+QUICK_START_MAVEN_CENTRAL.md
+SETUP_MAVEN_CENTRAL.md
+create-gpg-key.md
+
+# Release scripts (temporary)
+create-release*.ps1
+create-release*.bat
+create-release*.sh
+setup-gpg.bat
+setup-gpg.sh
+test-maven-central-local.bat
+test-maven-central-local.sh
+
+# ============================================
 # Sensitive Files - NEVER COMMIT!
 # ============================================
 # GPG Keys
