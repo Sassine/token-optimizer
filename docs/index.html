@@ -536,6 +536,7 @@
                 <li><a href="#installation">Installation</a></li>
                 <li><a href="#basic-usage">Basic Usage</a></li>
                 <li><a href="#token-counting">Token Counting</a></li>
+                <li><a href="#optimization-criteria">Optimization Criteria</a></li>
                 <li><a href="#optimization-policy">Optimization Policy</a></li>
                 <li><a href="#multiple-metrics">Multiple Metrics</a></li>
                 <li><a href="#reverse-conversion">Reverse Conversion</a></li>
@@ -802,6 +803,31 @@ OptimizationResult result3 = TokenOptimizer.optimize(obj, ModelType.GPT_4);</cod
                     </div>
                 </section>
 
+                <section id="optimization-criteria">
+                    <h3>Optimization Criteria</h3>
+                    <p>
+                        Choose what metric to optimize for: tokens (for LLMs), bytes (for storage), or characters (for size analysis).
+                        Different criteria can produce different optimal formats!
+                    </p>
+                    <pre><code class="language-java">// Optimize by tokens (default - for LLM usage)
+OptimizationResult byTokens = TokenOptimizer.optimize(person);
+
+// Optimize by bytes (for data persistence/storage)
+OptimizationResult byBytes = TokenOptimizer.optimizeByBytes(person);
+
+// Optimize by characters (for size analysis)
+OptimizationResult byChars = TokenOptimizer.optimizeByCharacters(person);
+
+// From JSON string
+OptimizationResult byBytes = TokenOptimizer.optimizeFromJsonByBytes(jsonString);
+OptimizationResult byChars = TokenOptimizer.optimizeFromJsonByCharacters(jsonString);</code></pre>
+
+                    <div class="alert alert-info">
+                        <strong>💡 Important:</strong> Different criteria can produce different optimal formats. 
+                        Tokens are best for LLM API costs, bytes for storage optimization, and characters for text size analysis.
+                    </div>
+                </section>
+
                 <section id="optimization-policy">
                     <h3>Optimization Policy</h3>
                     <p>
@@ -938,6 +964,32 @@ Object obj = ToonConverter.fromToon(toonString);</code></pre>
                 </div>
 
                 <div class="card">
+                    <h4><code>optimizeByBytes(Object obj)</code></h4>
+                    <p>Optimizes an object by comparing JSON vs TOON based on byte count (UTF-8).</p>
+                    <pre><code class="language-java">OptimizationResult result = TokenOptimizer.optimizeByBytes(obj);</code></pre>
+                    <p><strong>Use Case:</strong> Best for data persistence and storage optimization.</p>
+                </div>
+
+                <div class="card">
+                    <h4><code>optimizeByCharacters(Object obj)</code></h4>
+                    <p>Optimizes an object by comparing JSON vs TOON based on character count.</p>
+                    <pre><code class="language-java">OptimizationResult result = TokenOptimizer.optimizeByCharacters(obj);</code></pre>
+                    <p><strong>Use Case:</strong> Best for size analysis and text processing.</p>
+                </div>
+
+                <div class="card">
+                    <h4><code>optimizeFromJsonByBytes(String jsonString)</code></h4>
+                    <p>Optimizes a JSON string by comparing JSON vs TOON based on byte count.</p>
+                    <pre><code class="language-java">OptimizationResult result = TokenOptimizer.optimizeFromJsonByBytes(jsonString);</code></pre>
+                </div>
+
+                <div class="card">
+                    <h4><code>optimizeFromJsonByCharacters(String jsonString)</code></h4>
+                    <p>Optimizes a JSON string by comparing JSON vs TOON based on character count.</p>
+                    <pre><code class="language-java">OptimizationResult result = TokenOptimizer.optimizeFromJsonByCharacters(jsonString);</code></pre>
+                </div>
+
+                <div class="card">
                     <h4><code>optimize(Object obj, OptimizationPolicy policy)</code></h4>
                     <p>Optimizes an object using the specified optimization policy.</p>
                     <pre><code class="language-java">OptimizationPolicy policy = OptimizationPolicy.builder()
@@ -963,6 +1015,18 @@ OptimizationResult result = TokenOptimizer.optimize(obj, policy);</code></pre>
                     <h4><code>fromToon(String toonString, Class&lt;T&gt; clazz)</code></h4>
                     <p>Converts a TOON string to a specific class type.</p>
                     <pre><code class="language-java">MyClass obj = TokenOptimizer.fromToon(toonString, MyClass.class);</code></pre>
+                </div>
+
+                <h3>OptimizationCriteria Enum</h3>
+                <p>Enum representing the criteria used for optimization comparison.</p>
+
+                <div class="card">
+                    <h4>Values</h4>
+                    <ul style="margin-left: 2rem; color: var(--text-secondary);">
+                        <li><code>TOKENS</code> - Compare by token count (default, for LLM usage)</li>
+                        <li><code>BYTES</code> - Compare by byte count (for data persistence/storage)</li>
+                        <li><code>CHARACTERS</code> - Compare by character count (for size analysis)</li>
+                    </ul>
                 </div>
 
                 <h3>OptimizationPolicy Class</h3>

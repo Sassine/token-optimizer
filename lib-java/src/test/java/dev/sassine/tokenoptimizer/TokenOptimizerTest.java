@@ -523,4 +523,97 @@ class TokenOptimizerTest {
             TokenOptimizer.fromToon("name: John", null);
         });
     }
+    
+    @Test
+    void testOptimizeByBytes() {
+        final Map<String, Object> obj = new HashMap<>();
+        obj.put("name", "John");
+        obj.put("age", 30);
+        
+        final OptimizationResult result = TokenOptimizer.optimizeByBytes(obj);
+        
+        assertNotNull(result);
+        // The optimal format should have the lowest byte count
+        assertTrue(result.getOptimalByteCount() <= result.getJsonByteCount());
+        assertTrue(result.getOptimalByteCount() <= result.getToonByteCount());
+    }
+    
+    @Test
+    void testOptimizeByCharacters() {
+        final Map<String, Object> obj = new HashMap<>();
+        obj.put("name", "John");
+        obj.put("age", 30);
+        
+        final OptimizationResult result = TokenOptimizer.optimizeByCharacters(obj);
+        
+        assertNotNull(result);
+        // The optimal format should have the lowest character count
+        assertTrue(result.getOptimalCharacterCount() <= result.getJsonCharacterCount());
+        assertTrue(result.getOptimalCharacterCount() <= result.getToonCharacterCount());
+    }
+    
+    @Test
+    void testOptimizeFromJsonByBytes() {
+        final String jsonString = "{\"name\":\"John\",\"age\":30}";
+        
+        final OptimizationResult result = TokenOptimizer.optimizeFromJsonByBytes(jsonString);
+        
+        assertNotNull(result);
+        assertTrue(result.getOptimalByteCount() <= result.getJsonByteCount());
+        assertTrue(result.getOptimalByteCount() <= result.getToonByteCount());
+    }
+    
+    @Test
+    void testOptimizeFromJsonByCharacters() {
+        final String jsonString = "{\"name\":\"John\",\"age\":30}";
+        
+        final OptimizationResult result = TokenOptimizer.optimizeFromJsonByCharacters(jsonString);
+        
+        assertNotNull(result);
+        assertTrue(result.getOptimalCharacterCount() <= result.getJsonCharacterCount());
+        assertTrue(result.getOptimalCharacterCount() <= result.getToonCharacterCount());
+    }
+    
+    @Test
+    void testDifferentCriteriaCanProduceDifferentResults() {
+        final Map<String, Object> obj = new HashMap<>();
+        obj.put("test", "value");
+        obj.put("number", 42);
+        
+        final OptimizationResult byTokens = TokenOptimizer.optimize(obj);
+        final OptimizationResult byBytes = TokenOptimizer.optimizeByBytes(obj);
+        final OptimizationResult byChars = TokenOptimizer.optimizeByCharacters(obj);
+        
+        assertNotNull(byTokens);
+        assertNotNull(byBytes);
+        assertNotNull(byChars);
+        
+        // All should have valid results (may or may not be the same format)
+        assertNotNull(byTokens.getOptimalContent());
+        assertNotNull(byBytes.getOptimalContent());
+        assertNotNull(byChars.getOptimalContent());
+    }
+    
+    @Test
+    void testOptimizeWithCriteria() {
+        final Map<String, Object> obj = new HashMap<>();
+        obj.put("name", "Test");
+        
+        // Test with explicit criteria
+        final OptimizationResult resultTokens = TokenOptimizer.optimize(
+            obj, null, null, OptimizationCriteria.TOKENS);
+        final OptimizationResult resultBytes = TokenOptimizer.optimize(
+            obj, null, null, OptimizationCriteria.BYTES);
+        final OptimizationResult resultChars = TokenOptimizer.optimize(
+            obj, null, null, OptimizationCriteria.CHARACTERS);
+        
+        assertNotNull(resultTokens);
+        assertNotNull(resultBytes);
+        assertNotNull(resultChars);
+        
+        // Verify each uses the correct criteria for selection
+        assertTrue(resultTokens.getOptimalTokenCount() <= resultTokens.getJsonTokenCount());
+        assertTrue(resultBytes.getOptimalByteCount() <= resultBytes.getJsonByteCount());
+        assertTrue(resultChars.getOptimalCharacterCount() <= resultChars.getJsonCharacterCount());
+    }
 }
