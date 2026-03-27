@@ -59,7 +59,7 @@ token-optimizer/
 
 ### Installation
 
-Add the dependency to your `pom.xml`:
+**Maven** — Add the dependency to your `pom.xml`:
 
 ```xml
 <dependency>
@@ -67,6 +67,18 @@ Add the dependency to your `pom.xml`:
     <artifactId>token-optimizer</artifactId>
     <version>1.1.1</version>
 </dependency>
+```
+
+**Gradle** — Add to your `build.gradle`:
+
+```groovy
+implementation 'dev.sassine:token-optimizer:1.1.1'
+```
+
+Or with Kotlin DSL (`build.gradle.kts`):
+
+```kotlin
+implementation("dev.sassine:token-optimizer:1.1.1")
 ```
 
 **📦 Available on Maven Central:** [central.sonatype.com/artifact/dev.sassine/token-optimizer](https://central.sonatype.com/artifact/dev.sassine/token-optimizer)
@@ -422,19 +434,67 @@ Utility class for counting tokens in strings.
 
 ### OptimizationResult
 
-Class that contains the optimization result.
+Immutable class that contains the optimization result with comprehensive metrics.
 
-#### Properties:
+#### Methods:
 
-- `getOptimalFormat()` - Returns the optimal format (JSON or TOON)
+**Format & Content:**
+- `getOptimalFormat()` - Returns the optimal format (`FormatType.JSON` or `FormatType.TOON`)
 - `getOptimalContent()` - Returns the content in optimal format
-- `getOptimalTokenCount()` - Returns the token count of the optimal format
 - `getJsonContent()` - Returns the content in JSON format
-- `getJsonTokenCount()` - Returns the JSON token count
 - `getToonContent()` - Returns the content in TOON format
+
+**Token Metrics:**
+- `getOptimalTokenCount()` - Returns the token count of the optimal format
+- `getJsonTokenCount()` - Returns the JSON token count
 - `getToonTokenCount()` - Returns the TOON token count
-- `getTokenSavings()` - Returns the token savings
-- `getTokenSavingsPercentage()` - Returns the savings percentage
+- `getTokenSavings()` - Returns the token savings (absolute)
+- `getTokenSavingsPercentage()` - Returns the token savings percentage (0.0 to 100.0)
+
+**Character Metrics:**
+- `getOptimalCharacterCount()` - Returns the character count of the optimal format
+- `getJsonCharacterCount()` - Returns the JSON character count
+- `getToonCharacterCount()` - Returns the TOON character count
+- `getCharacterSavings()` - Returns the character savings (absolute)
+- `getCharacterSavingsPercentage()` - Returns the character savings percentage
+
+**Byte Metrics:**
+- `getOptimalByteCount()` - Returns the byte count of the optimal format (UTF-8)
+- `getJsonByteCount()` - Returns the JSON byte count
+- `getToonByteCount()` - Returns the TOON byte count
+- `getByteSavings()` - Returns the byte savings (absolute)
+- `getByteSavingsPercentage()` - Returns the byte savings percentage
+
+### OptimizationCriteria
+
+Enum that defines which metric is used to select the optimal format.
+
+#### Values:
+
+- `TOKENS` - Compare based on token count (default). Best for LLM API usage
+- `BYTES` - Compare based on byte count (UTF-8). Best for data persistence/storage
+- `CHARACTERS` - Compare based on character count. Best for size analysis
+
+### OptimizationPolicy
+
+Policy class to control format selection with configurable thresholds. Built using the builder pattern.
+
+#### Builder Methods:
+
+- `OptimizationPolicy.builder()` - Creates a new builder
+- `.preferFormat(PayloadFormat)` - Sets the format strategy (`AUTO`, `JSON_ONLY`, or `TOON_ONLY`)
+- `.minSavingsPercentForSwitch(double)` - Minimum savings percentage to switch formats (0.0 to 100.0)
+- `.build()` - Builds the policy instance
+
+### PayloadFormat
+
+Enum representing the preferred payload format strategy.
+
+#### Values:
+
+- `AUTO` - Automatically choose the format with the lowest metric, respecting the minimum savings threshold
+- `JSON_ONLY` - Always use JSON format, regardless of comparison results
+- `TOON_ONLY` - Always use TOON format, regardless of comparison results
 
 ## 🧪 Testing & Validation
 
@@ -491,7 +551,7 @@ cd lib-java
 # Build library JAR (excludes example classes)
 mvn clean package -DskipTests
 
-# The JAR will be in target/token-optimizer-0.0.1-SNAPSHOT.jar
+# The JAR will be in target/token-optimizer-1.1.1.jar
 # Contains only the library classes: TokenOptimizer, TokenCounter, ToonConverter, OptimizationResult
 ```
 

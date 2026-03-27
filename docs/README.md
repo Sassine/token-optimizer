@@ -1,16 +1,19 @@
 # Documentation
 
-This directory contains additional documentation for the Token Optimizer project.
+This directory contains the documentation site and supporting files for the Token Optimizer project.
 
 ## Contents
 
-- **HELP.md** - Additional help and troubleshooting information
+- **[index.html](index.html)** - Documentation site (deployed via GitHub Pages)
+- **[HELP.md](HELP.md)** - Quick start guide, troubleshooting, and requirements
+- **[assets/](assets/)** - Static assets used by the documentation site
 
 ## Related Documentation
 
-- Main project documentation: [../README.md](../README.md)
-- Java library documentation: [../lib-java/README.md](../lib-java/README.md)
-- Frontend tool documentation: [../frontend/README.md](../frontend/README.md)
+- [Main README](../README.md) - Project overview, installation, and API reference
+- [Java Library](../lib-java/README.md) - Library source code structure and build details
+- [Build Guide](../lib-java/BUILD.md) - How to build and verify the library JAR
+- [Frontend Tool](../frontend/README.md) - Visual comparison tool for TOON validation
 
 ## TOON Specification
 
@@ -19,4 +22,5 @@ The library implements the [official TOON specification v2.0](https://github.com
 Key resources:
 - [TOON Specification](https://github.com/toon-format/spec/blob/main/SPEC.md)
 - [TOON Format Repository](https://github.com/toon-format/spec)
+- [Official TOON npm Library](https://www.npmjs.com/package/@toon-format/toon)
 
