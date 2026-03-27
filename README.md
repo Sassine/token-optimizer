@@ -10,7 +10,7 @@ Java library to optimize payload format by comparing JSON vs TOON and automatica
 
 ## 📦 Latest Release
 
-**Current Version:** `1.1.1`  
+**Current Version:** `1.1.2`  
 **Status:** ✅ Published to [Maven Central](https://central.sonatype.com/artifact/dev.sassine/token-optimizer)  
 **Release Date:** November 2025
 
@@ -65,20 +65,20 @@ token-optimizer/
 <dependency>
     <groupId>dev.sassine</groupId>
     <artifactId>token-optimizer</artifactId>
-    <version>1.1.1</version>
+    <version>1.1.2</version>
 </dependency>
 ```
 
 **Gradle** — Add to your `build.gradle`:
 
 ```groovy
-implementation 'dev.sassine:token-optimizer:1.1.1'
+implementation 'dev.sassine:token-optimizer:1.1.2'
 ```
 
 Or with Kotlin DSL (`build.gradle.kts`):
 
 ```kotlin
-implementation("dev.sassine:token-optimizer:1.1.1")
+implementation("dev.sassine:token-optimizer:1.1.2")
 ```
 
 **📦 Available on Maven Central:** [central.sonatype.com/artifact/dev.sassine/token-optimizer](https://central.sonatype.com/artifact/dev.sassine/token-optimizer)
@@ -551,7 +551,7 @@ cd lib-java
 # Build library JAR (excludes example classes)
 mvn clean package -DskipTests
 
-# The JAR will be in target/token-optimizer-1.1.1.jar
+# The JAR will be in target/token-optimizer-1.1.2.jar
 # Contains only the library classes: TokenOptimizer, TokenCounter, ToonConverter, OptimizationResult
 ```
 

@@ -42,7 +42,7 @@ mvn clean compile
 # Build library JAR (excludes example classes)
 mvn clean package -DskipTests
 
-# The JAR will be in target/token-optimizer-1.1.1.jar
+# The JAR will be in target/token-optimizer-1.1.2.jar
 # Contains only: TokenOptimizer, TokenCounter, ToonConverter, OptimizationResult
 ```
 
