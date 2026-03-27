@@ -23,7 +23,7 @@ For further reference, please consider the following sections:
 |-------|----------|
 | `ClassNotFoundException` | Ensure `token-optimizer` is in your classpath / dependency list |
 | Token count differs from expected | Use `ModelType.GPT_4` for accurate tiktoken counting instead of generic estimation |
-| TOON output differs from official library | Verify you are using the latest version (`1.1.2`) |
+| TOON output differs from official library | Verify you are using the latest version (`1.1.3`) |
 | Build fails with Java version error | Ensure you have Java 11 or higher installed |
 
 ### Maven Central
@@ -34,7 +34,7 @@ The library is published on Maven Central:
 <dependency>
     <groupId>dev.sassine</groupId>
     <artifactId>token-optimizer</artifactId>
-    <version>1.1.2</version>
+    <version>1.1.3</version>
 </dependency>
 ```
 
