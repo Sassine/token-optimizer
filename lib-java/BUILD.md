@@ -17,7 +17,7 @@ The library JAR contains **only** the core library classes:
 # Build library JAR (excludes example classes)
 mvn clean package -DskipTests
 
-# The JAR will be in: target/token-optimizer-0.0.1-SNAPSHOT.jar
+# The JAR will be in: target/token-optimizer-1.1.1.jar
 ```
 
 ## What's Excluded from the JAR
@@ -34,7 +34,7 @@ These classes are located in `src/examples/` and are for demonstration/testing p
 
 ```bash
 # List classes in the JAR
-jar -tf target/token-optimizer-0.0.1-SNAPSHOT.jar | grep "\.class$"
+jar -tf target/token-optimizer-1.1.1.jar | grep "\.class$"
 
 # Should only show:
 # - OptimizationResult.class
@@ -60,7 +60,7 @@ Once installed, other projects can use it as a dependency:
 <dependency>
     <groupId>dev.sassine</groupId>
     <artifactId>token-optimizer</artifactId>
-    <version>0.0.1-SNAPSHOT</version>
+    <version>1.1.1</version>
 </dependency>
 ```
 
